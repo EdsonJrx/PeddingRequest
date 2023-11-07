@@ -1,20 +1,21 @@
-import { FlatList, Text} from "react-native";
+import { FlatList, Text, View} from "react-native";
 import { Chip } from "../chip";
-
-type FilterProps = {
-	id:number,
-	text:string,
-	visible:boolean,
-}
+import { ChipProps } from "../chip/styles";
 
 
-export function FilterList ({data}) {
+export function FilterList ({data}:{data:ChipProps}) {
     return (
-        <FlatList style={{height:10,alignSelf: 'stretch'}}
-            data={data} 
-            keyExtractor={(item) => String(item.id)} 
-            horizontal 
-            renderItem={({item}) => <Chip text={item.text} visible={item.visible}/>}
-        />
+        <View  style={{ height: 35 }}>
+            <FlatList 
+                data={data} 
+                keyExtractor={(item) => String(item.id)} 
+                horizontal 
+                renderItem={({item}) => <Chip text={item.text} visible={item.visible}/>}
+                showsHorizontalScrollIndicator={false}
+                style={{ paddingLeft:15}}
+                contentContainerStyle={{paddingRight:20}}
+                //decelerationRate={100}
+                />
+        </View>
     )
 }

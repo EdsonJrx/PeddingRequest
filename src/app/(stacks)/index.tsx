@@ -5,13 +5,18 @@ import Product from '../../components/Modal/product';
 import { useFonts, Inter_900Black } from '@expo-google-fonts/inter';
 import { ScreenHeader } from '../../components/screenHeader';
 import { FilterList } from '../../components/filterList';
+import { ChipProps } from '../../components/chip/styles'
 
-const data = [
-	{'id':1,'text':"Usuário atual",'visible':false},
-	{'id':2,'text':"Tipo Movimento",'visible':true},
-	{'id':3,'text':"C. Custo",'visible':true},
-	{'id':4,'text':"Teste Opcional",'visible':true},
-]
+const data: ChipProps[] = [
+    { id: 1, text: "Usuário atual", visible: false },
+    { id: 2, text: "Tipo Movimento", visible: true },
+    { id: 3, text: "C. Custo", visible: true },
+    { id: 4, text: "Teste Opcional", visible: true },
+    { id: 5, text: "Usuário atual", visible: false },
+    { id: 6, text: "Tipo Movimento", visible: true },
+    { id: 7, text: "C. Custo", visible: true },
+    { id: 8, text: "Teste Opcional", visible: true },
+];
 export default function Home() {
 	const bottomSheetRef = useRef<BottomSheetModal>(null);
 	const handlePresentModalPress = () => bottomSheetRef.current?.present();
@@ -40,9 +45,9 @@ const styles = StyleSheet.create({
 		flex: 1,
 		alignItems: 'center',
 		paddingTop:15,
+		gap:15,
 	},
 	contentContainer: {
-		// flex: 1,
 		alignItems: 'center'
 	},
 	containerHeadline: {

@@ -1,22 +1,18 @@
 import styled from "styled-components/native";
 import { Ionicons } from '@expo/vector-icons'
 
-export type ChipProps = {
-    text:string;
-    visible:boolean;
+export interface ChipProps {
+    id?: number;
+    text?: string;
+    visible?: boolean;
 }
-export const Container = styled.View`
-    flex-direction:row;
-    justify-content: center;
-    align-items: center;
-    padding-left: 10px ;
-`
 
 export const TextArea = styled.View`
     flex-direction:row;
     padding: 5px 10px 5px 10px;
     justify-content: center;
     align-items: center;
+    margin-right:10px;
 
     border-radius: 5px;
     border: 1.2px solid #000;
