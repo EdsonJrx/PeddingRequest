@@ -3,11 +3,12 @@ import { Ionicons } from '@expo/vector-icons'
 
 export interface ChipProps {
     id?: number;
-    text?: string;
-    visible?: boolean;
+    text: string;
+    visible: boolean;
+    shwModal: () => void;
 }
 
-export const TextArea = styled.View`
+export const TextArea = styled.TouchableOpacity`
     flex-direction:row;
     padding: 5px 10px 5px 10px;
     justify-content: center;
@@ -25,7 +26,5 @@ export const Text = styled.Text`
 `
 export const Icon = styled(Ionicons)<ChipProps>`
     font-size:12px;
-    color:black;
-    visibility: ${(props) => (props.visible ? 'visible' : 'hidden')};
-    
+    color:black;   
 `

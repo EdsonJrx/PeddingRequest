@@ -1,9 +1,12 @@
 import { View, StyleSheet, Text } from 'react-native';
 import React, { forwardRef, useCallback, useMemo } from 'react';
 import { BottomSheetBackdrop, BottomSheetModal } from '@gorhom/bottom-sheet';
-export type Ref = BottomSheetModal;
+interface Props {
+	title: string;
+}
+type Ref = BottomSheetModal;
 
-const Product = forwardRef<Ref>((props, ref) => {
+const Product = forwardRef<Ref, Props>((props, ref) => {
 	const snapPoints = useMemo(() => ['50%', '75%'], []);
 
 	const renderBackdrop = useCallback(
@@ -19,7 +22,7 @@ const Product = forwardRef<Ref>((props, ref) => {
 			backdropComponent={renderBackdrop}
 		>
 			<View style={styles.contentContainer}>
-				<Text style={styles.containerHeadline}>Bottom Modal 😎</Text>
+				<Text style={styles.containerHeadline}>{props.title}</Text>
 			</View>
 		</BottomSheetModal>
 	);
