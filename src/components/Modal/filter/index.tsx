@@ -6,7 +6,7 @@ interface Props {
 }
 type Ref = BottomSheetModal;
 
-const Product = forwardRef<Ref, Props>((props, ref) => {
+const Filter = forwardRef<Ref, Props>((props, ref) => {
 	const snapPoints = useMemo(() => ['50%', '75%'], []);
 
 	const renderBackdrop = useCallback(
@@ -40,4 +40,4 @@ const styles = StyleSheet.create({
 	}
 });
 
-export default Product;
+export default Filter;

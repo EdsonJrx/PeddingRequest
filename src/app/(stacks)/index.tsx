@@ -1,7 +1,7 @@
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-import Product from '../../components/Modal/product';
+import Filter from '../../components/Modal/filter';
 import { ScreenHeader } from '../../components/screenHeader';
 import { FilterList } from '../../components/filterList';
 
@@ -33,7 +33,7 @@ export default function Home() {
 		<View style={styles.container}>
       		<ScreenHeader />
 			<FilterList data={data} shwModal={(id) => handlePresentModalPress(id)}/>
-			<Product ref={bottomSheetRef} title={title} />
+			<Filter ref={bottomSheetRef} title={title} />
 		</View>
 	);
 }
