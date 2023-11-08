@@ -11,7 +11,7 @@ export function Avatar() {
     return null;
     }
     return (
-        <S.Container>
+        <S.Container >
             <S.Text>EJ</S.Text>
         </S.Container>
     )

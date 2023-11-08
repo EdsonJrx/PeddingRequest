@@ -1,21 +1,47 @@
-import { FlatList, Text, View} from "react-native";
+import { FlatList, View, Text, ListRenderItemInfo} from "react-native";
 import { Chip } from "../chip";
-import { ChipProps } from "../chip/styles";
+
+interface ItemProps {
+    id: number;
+    text: string;
+    visible: boolean;
+}
+
+const DATA: ItemProps[] = [
+    { id: 1, text: "Usuário atual", visible: false },
+    { id: 2, text: "Tipo Movimento", visible: true },
+    { id: 3, text: "C. Custo", visible: true },
+    { id: 4, text: "Teste Opcional", visible: true },
+    { id: 5, text: "Usuário atual", visible: false },
+    { id: 6, text: "Tipo Movimento", visible: true },
+    { id: 7, text: "C. Custo", visible: true },
+    { id: 8, text: "Teste Opcional", visible: true },
+];
 
 
-export function FilterList ({data, shwModal}:{data:ChipProps,shwModal:(id:string)=> void}) {
+export function FilterList ({shwModal}:{shwModal:(id:string)=> void}) {
+    function renderItem({ item }:ListRenderItemInfo<ItemProps>) {
+        return (
+            <Chip 
+                text={item.text} 
+                visible={item.visible} 
+                shwModal={()=>shwModal(item.text)}
+            />
+        )
+    }
     return (
-        <View  style={{ height: 35 }}>
+        <View  style={{ height: 60, gap:10, alignItems:'flex-end' }}>
             <FlatList 
-                data={data} 
+                data={DATA} 
                 keyExtractor={(item) => String(item.id)} 
                 horizontal 
-                renderItem={({item}) => <Chip text={item.text} visible={item.visible} shwModal={()=>shwModal(item.text)}/>}
+                renderItem={renderItem}
                 showsHorizontalScrollIndicator={false}
                 style={{ paddingLeft:15}}
                 contentContainerStyle={{paddingRight:20}}
                 //decelerationRate={100}
                 />
+            <Text style = {{paddingRight:20, color:'#03281B'}}>Limpar Filtros</Text>
         </View>
     )
 }
