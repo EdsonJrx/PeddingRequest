@@ -20,7 +20,7 @@ export function ListItem (item:IRequests){
                 </S.AvatarArea>
                 <S.UserNameArea>
                     <S.UserName>{item.USUARIOCRIACAO}</S.UserName>
-                    <S.CCName>{`${item.CCUSTO$$} ${'nome centro de custo'}`}</S.CCName>
+                    <S.CCName>{`${item.CODCCUSTO} ${item.CENTRO_DE_CUSTO}`}</S.CCName>
                 </S.UserNameArea>
                 <S.Icon  name="ios-ellipsis-vertical"/>
             </S.HeaderArea>
@@ -32,18 +32,18 @@ export function ListItem (item:IRequests){
                         <S.FooterTextMov>{item.NUMEROMOV}</S.FooterTextMov>
                         <S.IssueArea>
                             <S.FooterTextIssue>Emissão:</S.FooterTextIssue>
-                            <S.FooterTextIssueDate>15 Mai 2023</S.FooterTextIssueDate>
+                            <S.FooterTextIssueDate>{item.DATACRIACAO}</S.FooterTextIssueDate>
                         </S.IssueArea>
                     </S.TmvArea>
                 </S.HistArea>
                 <S.DeliveryDataArea>
                     <S.DeliveryArea>
                         <S.FooterTextDelivery>Entrega</S.FooterTextDelivery>
-                        <S.FooterTextDeliveryDate>21 Out 2023</S.FooterTextDeliveryDate>
+                        <S.FooterTextDeliveryDate>{item.DATAENTREGA}</S.FooterTextDeliveryDate>
                     </S.DeliveryArea>
                     <S.DueArea>
                         <S.FooterTextDue>Dias de Atrazo:</S.FooterTextDue>
-                        <S.FooterTextDueDate>40</S.FooterTextDueDate>
+                        <S.FooterTextDueDate>{item.ATRASO}</S.FooterTextDueDate>
                     </S.DueArea>
                 </S.DeliveryDataArea>
             </S.FooterArea>
