@@ -11,6 +11,6 @@ export const Container = styled.View`
 `
 export const Text = styled.Text`
     color: #FFF;
-    font-size: 20px;
+    font-size: 14px;
     font-Family: 'Inter_700Bold';
 `

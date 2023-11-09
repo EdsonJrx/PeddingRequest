@@ -7,7 +7,7 @@ interface Props {
 type Ref = BottomSheetModal;
 
 const Filter = forwardRef<Ref, Props>((props, ref) => {
-	const snapPoints = useMemo(() => ['50%', '75%'], []);
+	const snapPoints = useMemo(() => ['95%'], []);
 
 	const renderBackdrop = useCallback(
 		(props: any) => <BottomSheetBackdrop appearsOnIndex={0} disappearsOnIndex={-1} {...props} />,

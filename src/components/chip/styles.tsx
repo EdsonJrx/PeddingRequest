@@ -9,6 +9,7 @@ export interface ChipProps {
 }
 
 export const TextArea = styled.TouchableOpacity`
+    height:40px;
     flex-direction:row;
     padding: 5px 10px 5px 10px;
     justify-content: center;

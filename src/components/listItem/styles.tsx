@@ -3,10 +3,10 @@ import { Ionicons } from '@expo/vector-icons';
 
 export const Container = styled.TouchableOpacity`
     flex:1;
-    padding:  5px 10px 5px 10px;
+    padding:  5px 15px 5px 15px;
     flex-direction: column;
     align-items: center;
-    gap: 10px;
+
 `
 export const AvatarArea = styled.View`
     width: 50px;
@@ -19,14 +19,10 @@ export const AvatarArea = styled.View`
     background: #00D1FF;
 `
 export const AvatarText = styled.Text`
-    width: 30px;
-    height: 30px;
-    justify-content: center;
     color: #FFF;
-
     text-align: center;
     font-family: 'Inter_400Regular';
-    font-size: 25px;
+    font-size: 18px;
     font-weight: bold;
 `
 export const HeaderArea = styled.View`
@@ -42,13 +38,13 @@ export const UserNameArea = styled.View`
 export const UserName = styled.Text`
     color: #1E1E1E;
     font-family: 'Inter_400Regular';
-    font-size: 20px;
+    font-size: 14px;
     font-weight: bold;
 `   
 export const CCName = styled.Text`
     color: #404040;
     font-family: 'Inter_400Regular';
-    font-size: 16px;
+    font-size: 12px;
     font-weight: 700;
 `
 export const Icon = styled(Ionicons)`
@@ -57,15 +53,20 @@ export const Icon = styled(Ionicons)`
     align-self:flex-start;
 `
 export const HistArea = styled.View`
-    width:100%;
-    justify-content:flex-start;
+    flex:1;
 `
 export const HistText = styled.Text`
     color: #1E1E1E;
     font-family: 'Inter_400Regular';
-    font-size: 16px;
+    font-size: 12px;
 `
 export const FooterArea = styled.View`
+    flex:1;
+    flex-direction: row;
+    gap:10px;
+    align-items:flex-end;
+`
+export const TmvArea = styled.View`
     flex:1;
     flex-direction: row;
     gap:10px;
@@ -74,13 +75,13 @@ export const FooterArea = styled.View`
 export const FooterTextTmv = styled.Text`
     color: #404040;
     font-family: 'Inter_400Regular';
-    font-size: 16px;
+    font-size: 12px;
     font-weight: 700;
 `
 export const FooterTextMov = styled.Text`
     color: #404040;
     font-family: 'Inter_400Regular';
-    font-size: 16px;
+    font-size: 12px;
     font-weight: 700;
 `
 export const IssueArea = styled.View`
@@ -91,18 +92,18 @@ export const IssueArea = styled.View`
 export const FooterTextIssue = styled.Text`
     color: #404040;
     font-family: 'Inter_400Regular';
-    font-size: 16px;
+    font-size: 12px;
 `
 export const FooterTextIssueDate = styled.Text`
     color: #404040;
     font-family: 'Inter_400Regular';
-    font-size: 16px;
+    font-size: 12px;
     font-weight: 700;
 `
 export const DeliveryDataArea = styled.View`
-    flex:1;
     flex-direction:column;
     align-items:flex-end;
+    gap:10px;
 `
 export const DeliveryArea = styled.View`
     flex:1;
@@ -112,12 +113,12 @@ export const DeliveryArea = styled.View`
 export const FooterTextDelivery = styled.Text`
     color: #404040;
     font-family: 'Inter_400Regular';
-    font-size: 16px;
+    font-size: 12px;
 `
 export const FooterTextDeliveryDate = styled.Text`
     color: #404040;
     font-family: 'Inter_400Regular';
-    font-size: 16px;
+    font-size: 12px;
     font-weight: 700;
 `
 export const DueArea = styled.View`
@@ -128,12 +129,12 @@ export const DueArea = styled.View`
 export const FooterTextDue = styled.Text`
     color: #404040;
     font-family: 'Inter_400Regular';
-    font-size: 16px;
+    font-size: 12px;
 `
 export const FooterTextDueDate = styled.Text`
     color: #404040;
     font-family: 'Inter_400Regular';
-    font-size: 16px;
+    font-size: 12px;
     font-weight: 700;
 `
 

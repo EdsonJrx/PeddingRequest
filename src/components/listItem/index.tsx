@@ -1,6 +1,7 @@
 import { IRequests } from "../../apis/list/types";
 import { useFonts, Inter_400Regular } from '@expo-google-fonts/inter';
 import * as S from "./styles";
+import { getInicials } from "../../services/getInicials";
 
 export function ListItem (item:IRequests){
     let [fontsLoaded, fontError] = useFonts({
@@ -15,24 +16,26 @@ export function ListItem (item:IRequests){
         <S.Container>
             <S.HeaderArea>
                 <S.AvatarArea>
-                    <S.AvatarText>EJ</S.AvatarText>
+                    <S.AvatarText>{getInicials(item.USUARIOCRIACAO)}</S.AvatarText>
                 </S.AvatarArea>
                 <S.UserNameArea>
-                    <S.UserName>edson.junior</S.UserName>
-                    <S.CCName>2.0383 Residencial Millano</S.CCName>
+                    <S.UserName>{item.USUARIOCRIACAO}</S.UserName>
+                    <S.CCName>{`${item.CCUSTO$$} ${'nome centro de custo'}`}</S.CCName>
                 </S.UserNameArea>
                 <S.Icon  name="ios-ellipsis-vertical"/>
             </S.HeaderArea>
-            <S.HistArea>
-                <S.HistText>Aquisição de insumos para a produção</S.HistText>
-            </S.HistArea>
             <S.FooterArea>
-                <S.FooterTextTmv>1.1.04</S.FooterTextTmv>
-                <S.FooterTextMov>266688</S.FooterTextMov>
-                <S.IssueArea>
-                    <S.FooterTextIssue>Emissão:</S.FooterTextIssue>
-                    <S.FooterTextIssueDate>15 Mai 2023</S.FooterTextIssueDate>
-                </S.IssueArea>
+                <S.HistArea>
+                    <S.HistText numberOfLines={2} ellipsizeMode="tail">{item.HISTORICOCURTO}</S.HistText>
+                    <S.TmvArea>
+                        <S.FooterTextTmv>{item.CODTMV}</S.FooterTextTmv>
+                        <S.FooterTextMov>{item.NUMEROMOV}</S.FooterTextMov>
+                        <S.IssueArea>
+                            <S.FooterTextIssue>Emissão:</S.FooterTextIssue>
+                            <S.FooterTextIssueDate>15 Mai 2023</S.FooterTextIssueDate>
+                        </S.IssueArea>
+                    </S.TmvArea>
+                </S.HistArea>
                 <S.DeliveryDataArea>
                     <S.DeliveryArea>
                         <S.FooterTextDelivery>Entrega</S.FooterTextDelivery>
