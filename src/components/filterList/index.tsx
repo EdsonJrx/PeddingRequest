@@ -1,5 +1,6 @@
 import { FlatList, View, Text, ListRenderItemInfo} from "react-native";
 import { Chip } from "../chip";
+import { memo } from "react";
 
 interface ItemProps {
     id: number;
@@ -10,12 +11,11 @@ interface ItemProps {
 const DATA: ItemProps[] = [
     { id: 1, text: "Usuário atual", visible: false },
     { id: 2, text: "Tipo Movimento", visible: true },
-    { id: 3, text: "C. Custo", visible: true },
+    { id: 3, text: "Centro de Custo", visible: true },
     { id: 4, text: "Ordenação", visible: true },
 ];
 
-
-export function FilterList ({shwModal}:{shwModal:(id:string)=> void}) {
+const FilterList = memo(function ({shwModal}:{shwModal:(id:string)=> void}) {
     function renderItem({ item }:ListRenderItemInfo<ItemProps>) {
         return (
             <Chip 
@@ -45,4 +45,6 @@ export function FilterList ({shwModal}:{shwModal:(id:string)=> void}) {
             }
         </View>
     )
-}
+});
+
+export default FilterList

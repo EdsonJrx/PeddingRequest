@@ -1,22 +1,11 @@
-import { StyleSheet, View } from 'react-native';
-import { ScreenHeader } from '../../components/screenHeader';
 import { List } from '../../components/list';
+import * as S from './styles'
 
 export default function Home() {
-
+	
 	return (
-		<View style={styles.container}>
-      		<ScreenHeader />	
+		<S.Container>	
 			<List />
-		</View>
+		</S.Container>
 	);
 }
-const styles = StyleSheet.create({
-	container: {
-		flex: 1,
-		alignItems: 'center',
-		paddingTop:15,
-		gap:15,
-		backgroundColor:'#fff'
-	}
-});
