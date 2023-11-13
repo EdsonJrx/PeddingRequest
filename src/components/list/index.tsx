@@ -1,54 +1,82 @@
-import { FlatList, ListRenderItemInfo } from "react-native";
-import { IRequests } from "../../apis/list/types";
-import { ListItem } from "../listItem";
-import { View } from "react-native";
-import { Separator } from "../listItem/styles";
-import { FilterList } from "../filterList";
-import { useEffect, useRef, useState } from "react";
-import { BottomSheetModal } from "@gorhom/bottom-sheet";
-import Filter from "../Modal/filter";
-import { useFetch } from "../../apis/list/RequestPending";
-import { ActivityIndicator } from "./styles";
+import React, { useEffect, useState }from 'react';
+import { StyleSheet, Text, View, FlatList, ActivityIndicator, ListRenderItemInfo } from 'react-native';
+import { api } from '../../apis/list/config';
+import ListItem  from '../listItem';
+import { Separator } from '../listItem/styles';
+import { IRequests } from '../../apis/list/types';
 
 export function List () {
-    const [page, setPage] = useState(1);
-    const [title, setTitle] = useState('teste')
-    
-    const { data, loading } = useFetch<IRequests[]>('framework/v1/consultaSQLServer/RealizaConsulta/API.1.2/0/G?parameters=PAGE='+page+';ROWS=10;USUARIO=edson.junior',page)
-    
-    const bottomSheetRef = useRef<BottomSheetModal>(null);
-    
+ 
+    const [data, setData] = useState<IRequests[]>([]);
+    const [loading, setLoading] = useState<boolean>(false)
+    const [page, setPage] = useState(1)
+
+    const ROOT = 'framework/v1/consultaSQLServer/RealizaConsulta/API.1.2/0/G?parameters='
+    const ROWS= 10
+    const USUARIO = 'edson.junior'
+
     function renderItem({ item }:ListRenderItemInfo<IRequests>) {
         return <ListItem {...item} />
     }
-	const handlePresentModalPress = (title:string) => {
-		bottomSheetRef.current?.present();
-		setTitle(title)
-	}
 
-    const handleLoadMore = () => {
-        if (!loading) {
-          setPage(prevPage => prevPage + 1);
-          console.log(page)
-        }
-      };
+    useEffect(()=>{
+        loadApi();
+    },[])
 
-    return (
-        <View style={{width:'100%'}}>
-            <FlatList 
-                data={data}
-                keyExtractor={(item) => String(item.IDMOV)}
-                renderItem={renderItem}
-                ItemSeparatorComponent={Separator}
-                showsVerticalScrollIndicator={false}
-                ListHeaderComponent={<FilterList shwModal={(id) => handlePresentModalPress(id)}/>}
-                contentContainerStyle={{ paddingBottom: 60 }}
-                onEndReached={handleLoadMore}
-                onEndReachedThreshold={0.1} // Define a porcentagem da altura da lista que o usuário precisa rolar para acionar onEndReached
-                ListFooterComponent={loading && <ActivityIndicator />}
-            />
-            <Filter ref={bottomSheetRef} title={title} />    
+    async function loadApi() {
+        if(loading) return;
+
+        setLoading(true);
+
+        const response = await api.get(`${ROOT}PAGE=${page};ROWS=${ROWS};USUARIO=${USUARIO}`)
+
+        setData([...data,...response.data])
+        setPage(page+1)
+        setLoading(false)
+
+    }
+
+return (
+    <View style={styles.container}>
+        <FlatList
+            data={data}
+            keyExtractor={ item => String(item.IDMOV)}
+            renderItem={renderItem}
+            showsVerticalScrollIndicator={false}
+            onEndReached={loadApi}
+            onEndReachedThreshold={0.1}
+            ListFooterComponent={<FooterList Load={loading} />}
+            ItemSeparatorComponent={Separator}
+        />
+    </View>
+    );
+}
+
+function FooterList( { Load }:{Load : Boolean} ) {
+    if(!Load) return null;
+    return(
+        <View style={styles.loading}>
+            <ActivityIndicator size = {25} />
         </View>
-
     )
 }
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        backgroundColor:'#fff',
+        width:'100%',
+    },
+    listItem:{
+        backgroundColor:'#121212',
+        padding: 30,
+        marginTop: 20,
+        borderRadius: 10,
+    },
+    listText :{
+        fontSize: 16,
+        color:'#FFF',
+    },
+    loading :{
+        padding:10
+    }
+})

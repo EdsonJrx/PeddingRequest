@@ -2,8 +2,9 @@ import { IRequests } from "../../apis/list/types";
 import { useFonts, Inter_400Regular } from '@expo-google-fonts/inter';
 import * as S from "./styles";
 import { getInicials } from "../../services/getInicials";
+import { memo } from "react";
 
-export function ListItem (item:IRequests){
+const ListItem = memo(function (item:IRequests){
     let [fontsLoaded, fontError] = useFonts({
         Inter_400Regular,
     });
@@ -15,30 +16,28 @@ export function ListItem (item:IRequests){
     return(
         <S.Container>
             <S.HeaderArea>
-                <S.AvatarArea>
-                    <S.AvatarText>{getInicials(item.USUARIOCRIACAO)}</S.AvatarText>
-                </S.AvatarArea>
-                <S.UserNameArea>
-                    <S.UserName>{item.USUARIOCRIACAO}</S.UserName>
-                    <S.CCName>{`${item.CODCCUSTO} ${item.CENTRO_DE_CUSTO}`}</S.CCName>
-                </S.UserNameArea>
+                    <S.AvatarArea>
+                        <S.AvatarText>{getInicials(item.USUARIOCRIACAO)}</S.AvatarText>
+                    </S.AvatarArea>
+                    <S.UserNameArea>
+                        <S.UserName>{item.USUARIOCRIACAO}</S.UserName>
+                        <S.CCName numberOfLines={2} ellipsizeMode="tail">{`${item.CODCCUSTO} ${item.CENTRO_DE_CUSTO}`}</S.CCName>
+                    </S.UserNameArea>
                 <S.Icon  name="ios-ellipsis-vertical"/>
             </S.HeaderArea>
             <S.FooterArea>
-                <S.HistArea>
-                    <S.HistText numberOfLines={2} ellipsizeMode="tail">{item.HISTORICOCURTO}</S.HistText>
+                <S.HistText numberOfLines={4} ellipsizeMode="tail">{item.HISTORICOCURTO}</S.HistText>
+                <S.DeliveryDataArea>
                     <S.TmvArea>
                         <S.FooterTextTmv>{item.CODTMV}</S.FooterTextTmv>
                         <S.FooterTextMov>{item.NUMEROMOV}</S.FooterTextMov>
-                        <S.IssueArea>
-                            <S.FooterTextIssue>Emissão:</S.FooterTextIssue>
-                            <S.FooterTextIssueDate>{item.DATACRIACAO}</S.FooterTextIssueDate>
-                        </S.IssueArea>
                     </S.TmvArea>
-                </S.HistArea>
-                <S.DeliveryDataArea>
+                    <S.IssueArea>
+                        <S.FooterTextIssue>Emissão:</S.FooterTextIssue>
+                        <S.FooterTextIssueDate>{item.DATACRIACAO}</S.FooterTextIssueDate>
+                    </S.IssueArea>
                     <S.DeliveryArea>
-                        <S.FooterTextDelivery>Entrega</S.FooterTextDelivery>
+                        <S.FooterTextDelivery>Entrega:</S.FooterTextDelivery>
                         <S.FooterTextDeliveryDate>{item.DATAENTREGA}</S.FooterTextDeliveryDate>
                     </S.DeliveryArea>
                     <S.DueArea>
@@ -49,4 +48,6 @@ export function ListItem (item:IRequests){
             </S.FooterArea>
         </S.Container>
     )
-}
+})
+
+export default ListItem

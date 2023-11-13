@@ -2,10 +2,10 @@ import styled from "styled-components/native";
 import { Ionicons } from '@expo/vector-icons'; 
 
 export const Container = styled.TouchableOpacity`
-    flex:1;
-    padding:  5px 15px 5px 15px;
+    padding: 5px 15px 5px 15px;
     flex-direction: column;
-    align-items: center;
+    gap: 5px;
+
 
 `
 export const AvatarArea = styled.View`
@@ -22,7 +22,7 @@ export const AvatarText = styled.Text`
     color: #FFF;
     text-align: center;
     font-family: 'Inter_400Regular';
-    font-size: 18px;
+    font-size: 22px;
     font-weight: bold;
 `
 export const HeaderArea = styled.View`
@@ -31,20 +31,20 @@ export const HeaderArea = styled.View`
     gap: 10px;
 `
 export const UserNameArea = styled.View`
-    flex:1;
+    flex:2;
     flex-direction: column;
     align-items: flex-start;
 `
 export const UserName = styled.Text`
     color: #1E1E1E;
     font-family: 'Inter_400Regular';
-    font-size: 14px;
+    font-size: 18px;
     font-weight: bold;
 `   
 export const CCName = styled.Text`
     color: #404040;
     font-family: 'Inter_400Regular';
-    font-size: 12px;
+    font-size: 14px;
     font-weight: 700;
 `
 export const Icon = styled(Ionicons)`
@@ -52,22 +52,21 @@ export const Icon = styled(Ionicons)`
     font-size: 16px;
     align-self:flex-start;
 `
-export const HistArea = styled.View`
-    flex:1;
-`
 export const HistText = styled.Text`
     color: #1E1E1E;
     font-family: 'Inter_400Regular';
     font-size: 12px;
+    flex:2;
+    background-color:#f0f0f0;
+    border-radius:5px;
+    padding:10px;
 `
 export const FooterArea = styled.View`
-    flex:1;
     flex-direction: row;
-    gap:10px;
-    align-items:flex-end;
+    gap:5px;
+    justify-content:space-between;
 `
 export const TmvArea = styled.View`
-    flex:1;
     flex-direction: row;
     gap:10px;
     align-items:flex-end;
@@ -85,7 +84,6 @@ export const FooterTextMov = styled.Text`
     font-weight: 700;
 `
 export const IssueArea = styled.View`
-    flex:1;
     flex-direction:row;
     gap:5px;
 `
@@ -102,13 +100,13 @@ export const FooterTextIssueDate = styled.Text`
 `
 export const DeliveryDataArea = styled.View`
     flex-direction:column;
-    align-items:flex-end;
-    gap:10px;
+    background-color:#f0f0f0;
+    border-radius:5px;
+    padding:10px;
 `
 export const DeliveryArea = styled.View`
-    flex:1;
-    flex-direction:column;
-    align-items:flex-end;
+    flex-direction:row;
+    gap:5px;
 `
 export const FooterTextDelivery = styled.Text`
     color: #404040;
@@ -122,7 +120,6 @@ export const FooterTextDeliveryDate = styled.Text`
     font-weight: 700;
 `
 export const DueArea = styled.View`
-    flex:1;
     flex-direction:row;
     gap:5px;
 `
