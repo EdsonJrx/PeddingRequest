@@ -11,12 +11,6 @@ export const Container = styled.View`
     border-radius: 10px;
     background: #D9D9D9;
 `
-export const ContainerText = styled.View`
-    flex-direction:row;
-    align-items: center;
-    gap: 40px;
-    flex: 1;
-`
 export const Icon = styled(Ionicons)`
     font-size: 30px;
     color: #404040; 
@@ -25,5 +19,7 @@ export const TextInput = styled.TextInput`
     font-size: 12px;
     color: #404040;
     font-family: 'Inter_400Regular';
-    flex:1
+    flex:1;
+    padding-left:20px;
+
 `

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Animated, FlatList, ListRenderItemInfo, RefreshControl } from 'react-native';
+import { FlatList, ListRenderItemInfo, RefreshControl, StyleSheet, View } from 'react-native';
 import { api } from '../../apis/list/config';
 import { Separator } from '../listItem/styles';
 import { IRequests } from '../../apis/list/types';
@@ -13,19 +13,9 @@ import FooterList from '../loading';
 import * as S from './styles'
 import { ScreenHeader } from '../screenHeader';
 
+
 export function List () {
 
-    const H_MAX_HEIGHT = 0;
-    const H_MIN_HEIGHT = -60;
-    const H_SCROLL_DISTANCE = H_MAX_HEIGHT - H_MIN_HEIGHT;
-
-    const scrollOffsetY = useRef(new Animated.Value(0)).current
-
-    const headerScrollHeight = scrollOffsetY.interpolate({
-        inputRange: [0, H_SCROLL_DISTANCE],
-        outputRange: [H_MAX_HEIGHT, H_MIN_HEIGHT],
-        extrapolate: 'clamp'
-    });
 
     const ROOT = 'framework/v1/consultaSQLServer/RealizaConsulta/API.1.2/0/G?parameters='
     const ROWS= 10
@@ -34,6 +24,7 @@ export function List () {
     const [data, setData] = useState<IRequests[]>([]);
     const [loading, setLoading] = useState<boolean>(false)
     const [refreshing, setRefreshing] = useState<boolean>(false); 
+    const [hasError, setHasError] = useState(false);
     const [page, setPage] = useState(1)
     const [title, setTitle] = useState('')
     
@@ -53,41 +44,59 @@ export function List () {
     },[]);
 
     async function loadApi() {
-        const response = await api.get(`${ROOT}PAGE=${page};ROWS=${ROWS};USUARIO=${USUARIO}`)
+        if (hasError) {
+            return;
+        }
 
-        setData([...data,...response.data])
-        setPage(page+1)
-
-    };
+        try {
+          const response = await api.get(`${ROOT}PAGE=${page};ROWS=${ROWS};USUARIO=${USUARIO}`);
+          setData([...data,...response.data]);
+          setPage(page+1);
+        } catch (error:Error|any) {
+          if (error.code === 'ECONNABORTED') {
+            alert('A requisição demorou muito e foi interrompida');
+            setHasError(true);
+          } else {
+            alert(error);
+            setHasError(true);
+          }
+        }
+      };
     const onEndReached= () => {
         setLoading(true);
-        loadApi().then(() => setLoading(false));
+        setHasError(false)
+        loadApi()
+            .then(() => setLoading(false))
+            .catch(e => {
+                alert(e);
+                setHasError(true);
+            });
     };
 
     const onRefresh = () => {
         setRefreshing(true);
+        setHasError(false)
         setPage(1);
-        loadApi().then(() => setRefreshing(false));
+        loadApi()
+            .then(() => setRefreshing(false))
+            .catch(e => {
+                alert(e);
+                setHasError(true);
+            });
+
     };
+    
 
     return (
         <S.Container>
-            <Animated.View 
-                style={{
-                    top:headerScrollHeight,
-                    left:0,
-                    width:'100%',
-                    alignItems:'center',
-                    position:'absolute',
-                    zIndex:99
-                }}
-            >
-                <ScreenHeader />
-            </Animated.View>
-            <FlatList style={{paddingTop:-H_MIN_HEIGHT}}
+            <FlatList 
                 data={data}
                 keyExtractor={ item => String(item.IDMOV)}
-                ListHeaderComponent={<FilterList shwModal={(id) => handlePresentModalPress(id)}/>}
+                ListHeaderComponent={
+                    <View style={styles.container}>
+                        <ScreenHeader />
+                        <FilterList shwModal={(id) => handlePresentModalPress(id)}/>
+                    </View>}
                 renderItem={renderItem}
                 showsVerticalScrollIndicator={false}
                 onEndReached={onEndReached}
@@ -100,13 +109,29 @@ export function List () {
                         onRefresh={onRefresh}
                     />
                 }
-                onScroll={Animated.event([
-                    { nativeEvent: { contentOffset: { y: scrollOffsetY }} },
-                ], { useNativeDriver: false } )}
-                scrollEventThrottle={16}
-
             />
             <Filter ref={bottomSheetRef} title={title} />
         </S.Container>
     );
 };
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        gap: 10,
+        alignItems: 'center',
+        backgroundColor: '#fff',
+    },
+    container1: {
+        flex: 1,
+        gap: 10,
+        width:'100%',
+
+        alignItems:'center',
+        backgroundColor: '#fff',
+        position:'absolute',
+        zIndex:100,
+        paddingBottom:10,
+
+    },
+});

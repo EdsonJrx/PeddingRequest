@@ -10,4 +10,5 @@ export const Container = styled.View`
     flex: 1;
     background-color:#fff;
     width:100%;
+    align-items:center
 `

@@ -38,10 +38,7 @@ const FilterList = memo(function ({shwModal}:{shwModal:(id:string)=> void}) {
                 //decelerationRate={100}
                 />
             
-            {true?
-                <Text style = {{paddingRight:20, color:'#03281B'}}>Limpar Filtros</Text>
-                :
-                null
+            {true && <Text style = {{paddingRight:20, color:'#03281B'}}>Limpar Filtros</Text>
             }
         </View>
     )

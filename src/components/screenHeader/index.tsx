@@ -14,10 +14,8 @@ export function ScreenHeader () {
     }
     return (
         <S.Container>
-            <S.ContainerText>
-                <S.Icon name="menu" />
-                <S.TextInput  placeholder='Buscar Requisições'/>
-            </S.ContainerText>
+            <S.Icon name="menu" />
+            <S.TextInput  placeholder='Buscar Requisições'/>
             <Avatar />
         </S.Container>
     )
