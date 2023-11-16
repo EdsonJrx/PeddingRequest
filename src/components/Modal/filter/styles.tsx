@@ -1,5 +1,8 @@
 import styled from 'styled-components/native'
 
+export interface IfilterProps{
+    active:boolean
+}
 export const Container = styled.View`
     flex: 1;
     background-color:${({theme})=>theme.COLORS.BACKGROUND};
@@ -15,7 +18,7 @@ export const contentContainer = styled.View`
     flex: 1;
     flex-direction:row;
 `
-export const TextArea = styled.TouchableOpacity`
+export const TextArea = styled.TouchableOpacity<IfilterProps>`
     height:40px;
     flex-direction:row;
     padding: 5px 10px 5px 10px;
@@ -24,7 +27,8 @@ export const TextArea = styled.TouchableOpacity`
     margin-right:10px;
 
     border-radius: 5px;
-    border: 1.2px solid #000;
+    border: 1.2px solid;
+    border-color: ${({theme,active})=> active ? theme.COLORS.INFO:theme.COLORS.TEXT_SECONDARY };
 `
 export const Text = styled.Text`
     color: #000;
