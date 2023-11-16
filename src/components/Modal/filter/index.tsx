@@ -72,7 +72,7 @@ const Filter = forwardRef<Ref, Props>((props, ref) => {
           {props.data.map((item, index) => (
             <S.TextArea active={active} onPress={handleFilter}>
               <S.Text key={index}>
-                {index}:{item}
+                {item}
               </S.Text>
             </S.TextArea>
           ))}
