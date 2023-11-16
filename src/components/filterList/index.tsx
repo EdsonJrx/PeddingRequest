@@ -1,4 +1,4 @@
-import { FlatList, View, Text, ListRenderItemInfo} from "react-native";
+import { FlatList, View, Text, ListRenderItemInfo, TouchableOpacity} from "react-native";
 import { Chip } from "../chip";
 import { memo } from "react";
 
@@ -26,7 +26,7 @@ const FilterList = memo(function ({shwModal}:{shwModal:(id:string)=> void}) {
         )
     }
     return (
-        <View  style={{ gap:10, alignItems:'flex-end' }}>
+        <View  style={{ gap:10, alignItems:'flex-end', flex:1 }}>
             <FlatList 
                 data={DATA} 
                 keyExtractor={(item) => String(item.id)} 
@@ -37,8 +37,10 @@ const FilterList = memo(function ({shwModal}:{shwModal:(id:string)=> void}) {
                 contentContainerStyle={{paddingRight:20}}
                 //decelerationRate={100}
                 />
-            
-            {true && <Text style = {{paddingRight:20, color:'#03281B'}}>Limpar Filtros</Text>
+            { true &&
+                <TouchableOpacity>
+                    <Text style={{paddingRight:20}}>Limpar Filtro</Text>
+                </TouchableOpacity>
             }
         </View>
     )

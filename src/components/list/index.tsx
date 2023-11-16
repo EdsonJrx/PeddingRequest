@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { FlatList, ListRenderItemInfo, RefreshControl, StyleSheet, View } from 'react-native';
+import { FlatList, ListRenderItemInfo, RefreshControl, StyleSheet, View, Text } from 'react-native';
 import { api } from '../../apis/list/config';
 import { Separator } from '../listItem/styles';
 import { IRequests } from '../../apis/list/types';
@@ -121,17 +121,5 @@ const styles = StyleSheet.create({
         gap: 10,
         alignItems: 'center',
         backgroundColor: '#fff',
-    },
-    container1: {
-        flex: 1,
-        gap: 10,
-        width:'100%',
-
-        alignItems:'center',
-        backgroundColor: '#fff',
-        position:'absolute',
-        zIndex:100,
-        paddingBottom:10,
-
     },
 });
