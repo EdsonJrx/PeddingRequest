@@ -5,23 +5,24 @@ import { memo } from "react";
 interface ItemProps {
     id: number;
     text: string;
+    idField:string;
     visible: boolean;
 }
 
 const DATA: ItemProps[] = [
-    { id: 1, text: "Usuário atual", visible: false },
-    { id: 2, text: "Tipo Movimento", visible: true },
-    { id: 3, text: "Centro de Custo", visible: true },
-    { id: 4, text: "Ordenação", visible: true },
+    { id: 1, text: "Usuário atual", idField:"", visible: false },
+    { id: 2, text: "Tipo Movimento", idField:"CODTMV", visible: true },
+    { id: 3, text: "Centro de Custo", idField:"CODCCUSTO", visible: true },
+    { id: 4, text: "Ordenação", idField:"", visible: true },
 ];
 
-const FilterList = memo(function ({shwModal}:{shwModal:(id:string)=> void}) {
+const FilterList = memo(function ({shwModal}:{shwModal:(title:string,idFIeld:string)=> void}) {
     function renderItem({ item }:ListRenderItemInfo<ItemProps>) {
         return (
             <Chip 
                 text={item.text} 
                 visible={item.visible} 
-                shwModal={()=>shwModal(item.text)}
+                shwModal={()=>shwModal(item.text,item.idField)}
             />
         )
     }

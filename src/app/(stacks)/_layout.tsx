@@ -9,9 +9,9 @@ import { FlatListContext } from "../../contexts/flatlist";
 export default function StackRoutesLayout(){
     
     return (
-        <FlatListProvider>
-            <BottomSheetModalProvider>
-                <ThemeProvider theme={light}>
+        <ThemeProvider theme={light}>
+            <FlatListProvider>
+                <BottomSheetModalProvider>
                     <Stack screenOptions={{
                         headerShown: false,
                     }}>
@@ -22,8 +22,8 @@ export default function StackRoutesLayout(){
                             }}
                         />
                     </Stack>
-                </ThemeProvider>
-            </BottomSheetModalProvider>
-        </FlatListProvider>
+                </BottomSheetModalProvider>
+            </FlatListProvider>
+        </ThemeProvider>
     )
 }

@@ -5,8 +5,8 @@ import { Separator } from '../listItem/styles';
 import { IRequests } from '../../apis/list/types';
 import { BottomSheetModal } from "@gorhom/bottom-sheet";
 
-import FilterList  from '../filterList';
-import ListItem  from '../listItem';
+import FilterList from '../filterList';
+import ListItem from '../listItem';
 import Filter from '../Modal/filter';
 import FooterList from '../loading';
 
@@ -14,34 +14,45 @@ import * as S from './styles'
 import { ScreenHeader } from '../screenHeader';
 
 
-export function List () {
+export function List() {
 
 
     const ROOT = 'framework/v1/consultaSQLServer/RealizaConsulta/API.1.2/0/G?parameters='
-    const ROWS= 10
+    const ROWS = 10
     const USUARIO = 'edson.junior'
- 
-    const [data, setData] = useState<IRequests[]>([]);
-    const [loading, setLoading] = useState<boolean>(false)
-    const [refreshing, setRefreshing] = useState<boolean>(false); 
-    const [hasError, setHasError] = useState(false);
-    const [page, setPage] = useState(1)
-    const [title, setTitle] = useState('')
-    
-    const bottomSheetRef = useRef<BottomSheetModal>(null);
-    const handlePresentModalPress = (title:string) => {
-		bottomSheetRef.current?.present();
-		setTitle(title)
-	};
 
-    function renderItem({ item }:ListRenderItemInfo<IRequests>) {
+    const [data, setData] = useState<IRequests[]>([]);
+    const [loading, setLoading] = useState<boolean>(false);
+    const [refreshing, setRefreshing] = useState<boolean>(false);
+    const [hasError, setHasError] = useState(false);
+    const [page, setPage] = useState(1);
+    const [idTitle, setIdTitle] = useState('');
+    const [idField, setIdField] = useState('');
+    const [list, setList] = useState<string[]>([]);
+
+    const bottomSheetRef = useRef<BottomSheetModal>(null);
+    const handlePresentModalPress = (title: string, field: string) => {
+        setIdTitle(title)
+        setIdField(field)
+        FilterListItem(data, field)
+        bottomSheetRef.current?.present();
+    };
+
+    const FilterListItem = (data: IRequests[], field: string) => {
+        setList([...new Set(data.map(obj => {
+            const value = obj[field as keyof IRequests];
+            return typeof value === 'string' ? value : '';
+        }))]);
+    }
+
+    function renderItem({ item }: ListRenderItemInfo<IRequests>) {
         return <ListItem {...item} />
     };
 
-    useEffect(()=>{
+    useEffect(() => {
         setLoading(true);
         loadApi().then(() => setLoading(false));
-    },[]);
+    }, []);
 
     async function loadApi() {
         if (hasError) {
@@ -49,20 +60,20 @@ export function List () {
         }
 
         try {
-          const response = await api.get(`${ROOT}PAGE=${page};ROWS=${ROWS};USUARIO=${USUARIO}`);
-          setData([...data,...response.data]);
-          setPage(page+1);
-        } catch (error:Error|any) {
-          if (error.code === 'ECONNABORTED') {
-            alert('A requisição demorou muito e foi interrompida');
-            setHasError(true);
-          } else {
-            alert(error);
-            setHasError(true);
-          }
+            const response = await api.get(`${ROOT}PAGE=${page};ROWS=${ROWS};USUARIO=${USUARIO}`);
+            setData([...data, ...response.data]);
+            setPage(page + 1);
+        } catch (error: Error | any) {
+            if (error.code === 'ECONNABORTED') {
+                alert('A requisição demorou muito e foi interrompida');
+                setHasError(true);
+            } else {
+                alert(error);
+                setHasError(true);
+            }
         }
-      };
-    const onEndReached= () => {
+    };
+    const onEndReached = () => {
         setLoading(true);
         setHasError(false)
         loadApi()
@@ -85,17 +96,17 @@ export function List () {
             });
 
     };
-    
+
 
     return (
         <S.Container>
-            <FlatList 
+            <FlatList
                 data={data}
-                keyExtractor={ item => String(item.IDMOV)}
+                keyExtractor={item => String(item.IDMOV)}
                 ListHeaderComponent={
                     <View style={styles.container}>
                         <ScreenHeader />
-                        <FilterList shwModal={(id) => handlePresentModalPress(id)}/>
+                        <FilterList shwModal={(id, idField) => handlePresentModalPress(id, idField)} />
                     </View>}
                 renderItem={renderItem}
                 showsVerticalScrollIndicator={false}
@@ -110,7 +121,7 @@ export function List () {
                     />
                 }
             />
-            <Filter ref={bottomSheetRef} title={title} />
+            <Filter ref={bottomSheetRef} title={idTitle} idField={idField} data={list}/>
         </S.Container>
     );
 };

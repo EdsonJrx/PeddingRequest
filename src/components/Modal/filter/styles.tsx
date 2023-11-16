@@ -2,8 +2,34 @@ import styled from 'styled-components/native'
 
 export const Container = styled.View`
     flex: 1;
-    align-items: center;
-    justify-content: center;
-
-    background: ${({ theme }) => theme.COLORS.BACKGROUND}
+    background-color:${({theme})=>theme.COLORS.BACKGROUND};
+    padding: 20px;
 `
+
+export const containerHeadline = styled.Text`
+    align-self:center;
+    font-size: 24px;
+    font-weight: 600;
+`
+export const contentContainer = styled.View`
+    flex: 1;
+    flex-direction:row;
+`
+export const TextArea = styled.TouchableOpacity`
+    height:40px;
+    flex-direction:row;
+    padding: 5px 10px 5px 10px;
+    justify-content: center;
+    align-items: center;
+    margin-right:10px;
+
+    border-radius: 5px;
+    border: 1.2px solid #000;
+`
+export const Text = styled.Text`
+    color: #000;
+    text-align: center;
+    font-family: 'Inter_400Regular';
+    font-size: 12px;
+`
+

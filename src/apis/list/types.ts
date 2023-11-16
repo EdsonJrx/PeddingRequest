@@ -1,4 +1,5 @@
 export interface IRequests {
+    map(arg0: (obj: any) => string): Iterable<unknown> | null | undefined;
     "CODCCUSTO": string,
     "NUMEROMOV": string,
     "DATACRIACAO":string,

@@ -1,8 +1,11 @@
 import { View, StyleSheet, Text } from 'react-native';
 import React, { forwardRef, useCallback, useMemo } from 'react';
 import { BottomSheetBackdrop, BottomSheetModal } from '@gorhom/bottom-sheet';
+import * as S from './styles'
 interface Props {
 	title: string;
+	idField: string
+	data: string[]
 }
 type Ref = BottomSheetModal;
 
@@ -21,9 +24,17 @@ const Filter = forwardRef<Ref, Props>((props, ref) => {
 			snapPoints={snapPoints}
 			backdropComponent={renderBackdrop}
 		>
-			<View style={styles.contentContainer}>
-				<Text style={styles.containerHeadline}>{props.title}</Text>
-			</View>
+			<S.Container>
+				<S.containerHeadline>{props.title}</S.containerHeadline>
+				<S.contentContainer>
+					{props.data.map((item, index) => 
+						<S.TextArea>
+							<S.Text key={index}>{item}</S.Text>
+						</S.TextArea>
+						)
+					}
+				</S.contentContainer>
+			</S.Container>
 		</BottomSheetModal>
 	);
 });
