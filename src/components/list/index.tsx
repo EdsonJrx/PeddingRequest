@@ -13,7 +13,7 @@ import { BottomSheetModal } from "@gorhom/bottom-sheet";
 
 import FilterList from "../filterList";
 import ListItem from "../listItem";
-import Filter from "../Modal/filter";
+import Filter, { DataProps } from "../Modal/filter";
 import FooterList from "../loading";
 
 import * as S from "./styles";
@@ -34,13 +34,44 @@ export function List() {
   const [idField, setIdField] = useState("");
   const [list, setList] = useState<string[]>([]);
 
+  const [dataStructure, setDataStructure] = useState<DataProps[]>([]);
+
+
   const bottomSheetRef = useRef<BottomSheetModal>(null);
   const handlePresentModalPress = (title: string, field: string) => {
     setIdTitle(title);
     setIdField(field);
     FilterListItem(data, field);
+    handleButtonPress(field)
     bottomSheetRef.current?.present();
   };
+
+
+  const handleButtonPress = (field: string) => {
+    const filteredData = [...new Set(data
+      .map((obj) => obj[field as keyof IRequests])
+      .filter((value): value is string => typeof value === "string"))];
+  
+    setDataStructure(prevDataStructure => {
+      const existingDataIndex = prevDataStructure.findIndex(item => Object.keys(item)[0] === field);
+      if (existingDataIndex !== -1) {
+        // Se os dados já existem, atualize-os
+        const updatedDataStructure = [...prevDataStructure];
+        const existingData = updatedDataStructure[existingDataIndex][field];
+        const updatedFieldData = [...new Set([...existingData.map(item => item.name), ...filteredData])].map(name => ({ name, activate: false }));
+        updatedDataStructure[existingDataIndex] = { [field]: updatedFieldData };
+        return updatedDataStructure;
+      } else {
+        // Se os dados não existem, adicione-os
+        return [...prevDataStructure, { [field]: filteredData.map(name => ({ name, activate: false })) }];
+      }
+    });
+  };
+  
+
+  // useEffect(() => {
+  //   console.log(JSON.stringify(dataStructure, null, 2));
+  // }, [idField]);
 
   const FilterListItem = (data: IRequests[], field: string) => {
     setList([
@@ -133,7 +164,7 @@ export function List() {
         ref={bottomSheetRef}
         title={idTitle}
         idField={idField}
-        data={list}
+        data={dataStructure}
       />
     </S.Container>
   );

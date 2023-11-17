@@ -1,48 +1,28 @@
-import React, { forwardRef, useCallback, useMemo, useState } from "react";
+import React, { forwardRef, useCallback, useEffect, useMemo, useState } from "react";
 import { BottomSheetBackdrop, BottomSheetModal } from "@gorhom/bottom-sheet";
 import * as S from "./styles";
 interface Props {
   title: string;
   idField: string;
-  data: string[];
+  data: DataProps[];
 }
 
-interface DataProps {
-  CC: {
+export interface DataProps {
+  CODCCUSTO: {
     name: string;
     activate: boolean;
   }[];
-  TMV: {
+  CODTMV: {
     name: string;
     activate: boolean;
   }[];
 }
 
-const DATA: DataProps[] = [
-  {
-    CC: [
-      {
-        name: "2.0401",
-        activate: true,
-      },
-      {
-        name: "2.0385",
-        activate: true,
-      },
-    ],
-    TMV: [
-      {
-        name: "1.1.04",
-        activate: true,
-      },
-    ],
-  },
-];
 
 type Ref = BottomSheetModal;
 
 const Filter = forwardRef<Ref, Props>((props, ref) => {
-  const [data, setData] = useState<DataProps[]>(DATA);
+  const [data, setData] = useState<DataProps[]>(props.data);
 
   const snapPoints = useMemo(() => ["95%"], []);
   const renderBackdrop = useCallback(
@@ -55,6 +35,7 @@ const Filter = forwardRef<Ref, Props>((props, ref) => {
     ),
     []
   );
+  useEffect(()=>{console.log(JSON.stringify(props.data, null, 2))},[props.idField])
 
   const handleFilter = (dataIndex:number, ccIndex:number) => {
     setData((prevData) => {
@@ -62,7 +43,7 @@ const Filter = forwardRef<Ref, Props>((props, ref) => {
         if (i === dataIndex) {
           return {
             ...item,
-            CC: item.CC.map((ccItem, j) => {
+            CODCCUSTO: item.CODCCUSTO.map((ccItem, j) => {
               if (j === ccIndex) {
                 return { ...ccItem, activate: !ccItem.activate };
               }
@@ -85,7 +66,7 @@ const Filter = forwardRef<Ref, Props>((props, ref) => {
         <S.containerHeadline>{props.title}</S.containerHeadline>
         <S.contentContainer>
           {data.map((itemData, dataIndex) =>
-            itemData.CC.map((item, ccIndex) => (
+            itemData.CODCCUSTO.map((item, ccIndex) => (
               <S.TextArea
                 activate={item.activate}
                 onPress={() => handleFilter(dataIndex, ccIndex)}
