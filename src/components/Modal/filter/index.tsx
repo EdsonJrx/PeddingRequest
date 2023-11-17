@@ -42,7 +42,7 @@ const DATA: DataProps[] = [
 type Ref = BottomSheetModal;
 
 const Filter = forwardRef<Ref, Props>((props, ref) => {
-  const [active, setActive] = useState<boolean>(false);
+  const [data, setData] = useState<DataProps[]>(DATA);
 
   const snapPoints = useMemo(() => ["95%"], []);
   const renderBackdrop = useCallback(
@@ -56,8 +56,23 @@ const Filter = forwardRef<Ref, Props>((props, ref) => {
     []
   );
 
-  const handleFilter = () => {
-    !active ? setActive(true) : setActive(false);
+  const handleFilter = (dataIndex:number, ccIndex:number) => {
+    setData((prevData) => {
+      return prevData.map((item, i) => {
+        if (i === dataIndex) {
+          return {
+            ...item,
+            CC: item.CC.map((ccItem, j) => {
+              if (j === ccIndex) {
+                return { ...ccItem, activate: !ccItem.activate };
+              }
+              return ccItem;
+            }),
+          };
+        }
+        return item;
+      });
+    });
   };
   return (
     <BottomSheetModal
@@ -69,13 +84,16 @@ const Filter = forwardRef<Ref, Props>((props, ref) => {
       <S.Container>
         <S.containerHeadline>{props.title}</S.containerHeadline>
         <S.contentContainer>
-          {props.data.map((item, index) => (
-            <S.TextArea active={active} onPress={handleFilter}>
-              <S.Text key={index}>
-                {item}
-              </S.Text>
-            </S.TextArea>
-          ))}
+          {data.map((itemData, dataIndex) =>
+            itemData.CC.map((item, ccIndex) => (
+              <S.TextArea
+                activate={item.activate}
+                onPress={() => handleFilter(dataIndex, ccIndex)}
+              >
+                <S.Text key={ccIndex}>{item.name}</S.Text>
+              </S.TextArea>
+            ))
+          )}
         </S.contentContainer>
       </S.Container>
     </BottomSheetModal>

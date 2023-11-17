@@ -1,7 +1,7 @@
 import styled from 'styled-components/native'
 
 export interface IfilterProps{
-    active:boolean
+    activate:boolean
 }
 export const Container = styled.View`
     flex: 1;
@@ -28,7 +28,7 @@ export const TextArea = styled.TouchableOpacity<IfilterProps>`
 
     border-radius: 5px;
     border: 1.2px solid;
-    border-color: ${({theme,active})=> active ? theme.COLORS.INFO:theme.COLORS.TEXT_SECONDARY };
+    border-color: ${({theme, activate})=> activate ? theme.COLORS.INFO:theme.COLORS.TEXT_SECONDARY };
 `
 export const Text = styled.Text`
     color: #000;

@@ -43,7 +43,6 @@ export function List() {
   };
 
   const FilterListItem = (data: IRequests[], field: string) => {
-    //setList([])
     setList([
       ...new Set(
         data.map((obj) => {
