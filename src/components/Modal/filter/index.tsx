@@ -1,30 +1,28 @@
-import React, { forwardRef, useCallback, useEffect, useMemo, useState } from "react";
+import React, { forwardRef, useCallback, useEffect, useState } from "react";
 import { BottomSheetBackdrop, BottomSheetModal } from "@gorhom/bottom-sheet";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as S from "./styles";
+
+interface Item {
+  name: string;
+  activate: boolean;
+}
+
+interface DataProps {
+  CODCCUSTO: Item[];
+  CODTMV: Item[];
+}
+
 interface Props {
   title: string;
-  idField: string;
+  idField: keyof DataProps;
   data: DataProps[];
 }
 
-export interface DataProps {
-  CODCCUSTO: {
-    name: string;
-    activate: boolean;
-  }[];
-  CODTMV: {
-    name: string;
-    activate: boolean;
-  }[];
-}
-
-
-type Ref = BottomSheetModal;
-
-const Filter = forwardRef<Ref, Props>((props, ref) => {
+const Filter = forwardRef<BottomSheetModal, Props>((props, ref) => {
   const [data, setData] = useState<DataProps[]>(props.data);
 
-  const snapPoints = useMemo(() => ["95%"], []);
+  const snapPoints = ["95%"];
   const renderBackdrop = useCallback(
     (props: any) => (
       <BottomSheetBackdrop
@@ -35,26 +33,43 @@ const Filter = forwardRef<Ref, Props>((props, ref) => {
     ),
     []
   );
-  useEffect(()=>{console.log(JSON.stringify(props.data, null, 2))},[props.idField])
 
-  const handleFilter = (dataIndex:number, ccIndex:number) => {
-    setData((prevData) => {
-      return prevData.map((item, i) => {
-        if (i === dataIndex) {
-          return {
-            ...item,
-            CODCCUSTO: item.CODCCUSTO.map((ccItem, j) => {
-              if (j === ccIndex) {
-                return { ...ccItem, activate: !ccItem.activate };
-              }
-              return ccItem;
-            }),
-          };
-        }
-        return item;
-      });
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const jsonValue = await AsyncStorage.getItem("@storage_Key");
+        return jsonValue != null ? JSON.parse(jsonValue) : null;
+      } catch (e) {
+        console.log(e);
+      }
+    };
+
+    fetchData().then((data) => {
+      if (data !== null) {
+        setData(data);
+        console.log("inicial",JSON.stringify(data))
+      }
     });
-  };
+  }, []);
+
+  const handleFilter = async (
+    dataIndex: number,
+    ccIndex: number,
+    idField: keyof DataProps
+  ) => {
+    const storageData = await AsyncStorage.getItem("@storage_Key");
+    console.log((storageData))
+    
+    const prevData = storageData ? JSON.parse(storageData) : [];
+  
+    // Directly update the specific item that needs to be changed
+    prevData[dataIndex][idField][ccIndex].activate = !prevData[dataIndex][idField][ccIndex].activate;
+  
+    await AsyncStorage.setItem("@storage_Key", JSON.stringify(prevData));
+    setData(prevData);
+    console.log(JSON.stringify(data))
+  };  
+  
   return (
     <BottomSheetModal
       ref={ref}
@@ -65,16 +80,22 @@ const Filter = forwardRef<Ref, Props>((props, ref) => {
       <S.Container>
         <S.containerHeadline>{props.title}</S.containerHeadline>
         <S.contentContainer>
-          {data.map((itemData, dataIndex) =>
-            itemData.CODCCUSTO.map((item, ccIndex) => (
-              <S.TextArea
-                activate={item.activate}
-                onPress={() => handleFilter(dataIndex, ccIndex)}
-              >
-                <S.Text key={ccIndex}>{item.name}</S.Text>
-              </S.TextArea>
-            ))
-          )}
+          {data &&
+            data.map(
+              (itemData, dataIndex) =>
+                itemData[props.idField] &&
+                itemData[props.idField].map((item, ccIndex) => (
+                  <S.TextArea
+                    key={`${dataIndex}-${ccIndex}`}
+                    activate={item.activate}
+                    onPress={() =>
+                      handleFilter(dataIndex, ccIndex, props.idField)
+                    }
+                  >
+                    <S.Text>{item.name}</S.Text>
+                  </S.TextArea>
+                ))
+            )}
         </S.contentContainer>
       </S.Container>
     </BottomSheetModal>

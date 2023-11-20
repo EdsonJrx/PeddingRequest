@@ -19,6 +19,8 @@ import FooterList from "../loading";
 import * as S from "./styles";
 import { ScreenHeader } from "../screenHeader";
 
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 export function List() {
   const ROOT =
     "framework/v1/consultaSQLServer/RealizaConsulta/API.1.2/0/G?parameters=";
@@ -36,6 +38,17 @@ export function List() {
 
   const [dataStructure, setDataStructure] = useState<DataProps[]>([]);
 
+  const storeData = async (value:string) => {
+    try {
+      const jsonValue = JSON.stringify(value)
+      await AsyncStorage.setItem('@storage_Key', jsonValue)
+    } catch (e) {
+      // saving error
+      console.log(e);
+    }
+  }
+  
+
 
   const bottomSheetRef = useRef<BottomSheetModal>(null);
   const handlePresentModalPress = (title: string, field: string) => {
@@ -47,28 +60,28 @@ export function List() {
   };
 
 
-  const handleButtonPress = (field: string) => {
+  const handleButtonPress = async (field: string) => {
     const filteredData = [...new Set(data
       .map((obj) => obj[field as keyof IRequests])
       .filter((value): value is string => typeof value === "string"))];
   
-    setDataStructure(prevDataStructure => {
-      const existingDataIndex = prevDataStructure.findIndex(item => Object.keys(item)[0] === field);
-      if (existingDataIndex !== -1) {
-        // Se os dados já existem, atualize-os
-        const updatedDataStructure = [...prevDataStructure];
-        const existingData = updatedDataStructure[existingDataIndex][field];
-        const updatedFieldData = [...new Set([...existingData.map(item => item.name), ...filteredData])].map(name => ({ name, activate: false }));
-        updatedDataStructure[existingDataIndex] = { [field]: updatedFieldData };
-        return updatedDataStructure;
-      } else {
-        // Se os dados não existem, adicione-os
-        return [...prevDataStructure, { [field]: filteredData.map(name => ({ name, activate: false })) }];
-      }
-    });
+    // Inicialize prevDataStructure com um valor padrão se for null ou undefined
+    const prevDataStructure = JSON.parse(await AsyncStorage.getItem('@storage_Key')) || [];
+  
+    const existingDataIndex = prevDataStructure.findIndex(item => Object.keys(item)[0] === field);
+    if (existingDataIndex !== -1) {
+      // Se os dados já existem, atualize-os
+      const updatedDataStructure = [...prevDataStructure];
+      const existingData = updatedDataStructure[existingDataIndex][field];
+      const updatedFieldData = [...new Set([...existingData.map(item => item.name), ...filteredData])].map(name => ({ name, activate: false }));
+      updatedDataStructure[existingDataIndex] = { [field]: updatedFieldData };
+      await AsyncStorage.setItem('@storage_Key', JSON.stringify(updatedDataStructure));
+    } else {
+      // Se os dados não existem, adicione-os
+      await AsyncStorage.setItem('@storage_Key', JSON.stringify([...prevDataStructure, { [field]: filteredData.map(name => ({ name, activate: false })) }]));
+    }
   };
   
-
   // useEffect(() => {
   //   console.log(JSON.stringify(dataStructure, null, 2));
   // }, [idField]);
