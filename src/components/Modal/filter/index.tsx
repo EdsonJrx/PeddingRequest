@@ -47,7 +47,6 @@ const Filter = forwardRef<BottomSheetModal, Props>((props, ref) => {
     fetchData().then((data) => {
       if (data !== null) {
         setData(data);
-        console.log("inicial",JSON.stringify(data))
       }
     });
   }, []);
@@ -57,17 +56,14 @@ const Filter = forwardRef<BottomSheetModal, Props>((props, ref) => {
     ccIndex: number,
     idField: keyof DataProps
   ) => {
-    const storageData = await AsyncStorage.getItem("@storage_Key");
-    console.log((storageData))
-    
-    const prevData = storageData ? JSON.parse(storageData) : [];
-  
-    // Directly update the specific item that needs to be changed
+
+    const prevData = data ? JSON.parse(JSON.stringify(data)) : [];
+
     prevData[dataIndex][idField][ccIndex].activate = !prevData[dataIndex][idField][ccIndex].activate;
-  
+
     await AsyncStorage.setItem("@storage_Key", JSON.stringify(prevData));
     setData(prevData);
-    console.log(JSON.stringify(data))
+    
   };  
   
   return (

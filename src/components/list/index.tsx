@@ -22,8 +22,7 @@ import { ScreenHeader } from "../screenHeader";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export function List() {
-  const ROOT =
-    "framework/v1/consultaSQLServer/RealizaConsulta/API.1.2/0/G?parameters=";
+  const ROOT ="framework/v1/consultaSQLServer/RealizaConsulta/API.1.2/0/G?parameters=";
   const ROWS = 10;
   const USUARIO = "edson.junior";
 
@@ -48,8 +47,6 @@ export function List() {
     }
   }
   
-
-
   const bottomSheetRef = useRef<BottomSheetModal>(null);
   const handlePresentModalPress = (title: string, field: string) => {
     setIdTitle(title);
@@ -81,10 +78,6 @@ export function List() {
       await AsyncStorage.setItem('@storage_Key', JSON.stringify([...prevDataStructure, { [field]: filteredData.map(name => ({ name, activate: false })) }]));
     }
   };
-  
-  // useEffect(() => {
-  //   console.log(JSON.stringify(dataStructure, null, 2));
-  // }, [idField]);
 
   const FilterListItem = (data: IRequests[], field: string) => {
     setList([
