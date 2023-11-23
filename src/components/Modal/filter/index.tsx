@@ -15,12 +15,11 @@ interface DataProps {
 
 interface Props {
   title: string;
-  idField: keyof DataProps;
-  data: DataProps[];
+  idField: string;
 }
 
 const Filter = forwardRef<BottomSheetModal, Props>((props, ref) => {
-  const [data, setData] = useState<DataProps[]>(props.data);
+  const [data, setData] = useState<DataProps[]>();
 
   const snapPoints = ["95%"];
   const renderBackdrop = useCallback(
@@ -56,16 +55,15 @@ const Filter = forwardRef<BottomSheetModal, Props>((props, ref) => {
     ccIndex: number,
     idField: keyof DataProps
   ) => {
-
     const prevData = data ? JSON.parse(JSON.stringify(data)) : [];
 
-    prevData[dataIndex][idField][ccIndex].activate = !prevData[dataIndex][idField][ccIndex].activate;
+    prevData[dataIndex][idField][ccIndex].activate =
+      !prevData[dataIndex][idField][ccIndex].activate;
 
     await AsyncStorage.setItem("@storage_Key", JSON.stringify(prevData));
     setData(prevData);
-    
-  };  
-  
+  };
+
   return (
     <BottomSheetModal
       ref={ref}
@@ -77,21 +75,21 @@ const Filter = forwardRef<BottomSheetModal, Props>((props, ref) => {
         <S.containerHeadline>{props.title}</S.containerHeadline>
         <S.contentContainer>
           {data &&
-            data.map(
-              (itemData, dataIndex) =>
-                itemData[props.idField] &&
-                itemData[props.idField].map((item, ccIndex) => (
+            data.map((itemData, dataIndex) => {
+              const idField = props.idField as keyof DataProps;
+              return (
+                itemData[idField] &&
+                itemData[idField].map((item, ccIndex) => (
                   <S.TextArea
                     key={`${dataIndex}-${ccIndex}`}
                     activate={item.activate}
-                    onPress={() =>
-                      handleFilter(dataIndex, ccIndex, props.idField)
-                    }
+                    onPress={() => handleFilter(dataIndex, ccIndex, idField)}
                   >
                     <S.Text>{item.name}</S.Text>
                   </S.TextArea>
                 ))
-            )}
+              );
+            })}
         </S.contentContainer>
       </S.Container>
     </BottomSheetModal>

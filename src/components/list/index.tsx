@@ -13,19 +13,28 @@ import { BottomSheetModal } from "@gorhom/bottom-sheet";
 
 import FilterList from "../filterList";
 import ListItem from "../listItem";
-import Filter, { DataProps } from "../Modal/filter";
+import Filter from "../Modal/filter";
 import FooterList from "../loading";
 
 import * as S from "./styles";
 import { ScreenHeader } from "../screenHeader";
 
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+type DataItem = {
+  name: string;
+  activate: boolean;
+};
+
+type DataStructure = {
+  [key: string]: DataItem[];
+};
+
+const ROOT ="framework/v1/consultaSQLServer/RealizaConsulta/API.1.2/0/G?parameters=";
+const ROWS = 10;
+const USUARIO = "edson.junior";
 
 export function List() {
-  const ROOT ="framework/v1/consultaSQLServer/RealizaConsulta/API.1.2/0/G?parameters=";
-  const ROWS = 10;
-  const USUARIO = "edson.junior";
-
   const [data, setData] = useState<IRequests[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [refreshing, setRefreshing] = useState<boolean>(false);
@@ -33,66 +42,87 @@ export function List() {
   const [page, setPage] = useState(1);
   const [idTitle, setIdTitle] = useState("");
   const [idField, setIdField] = useState("");
-  const [list, setList] = useState<string[]>([]);
+  const [searchText, setSearchText] = useState<string>("");
+  const [filteredItems, setFilteredItems] = useState<IRequests[]>([]);
 
-  const [dataStructure, setDataStructure] = useState<DataProps[]>([]);
-
-  const storeData = async (value:string) => {
+  const storeData = async (value: string) => {
     try {
-      const jsonValue = JSON.stringify(value)
-      await AsyncStorage.setItem('@storage_Key', jsonValue)
+      const jsonValue = JSON.stringify(value);
+      await AsyncStorage.setItem("@storage_Key", jsonValue);
     } catch (e) {
-      // saving error
       console.log(e);
     }
-  }
-  
+  };
+
   const bottomSheetRef = useRef<BottomSheetModal>(null);
   const handlePresentModalPress = (title: string, field: string) => {
     setIdTitle(title);
     setIdField(field);
-    FilterListItem(data, field);
-    handleButtonPress(field)
+    handleButtonPress(field);
     bottomSheetRef.current?.present();
   };
 
-
   const handleButtonPress = async (field: string) => {
-    const filteredData = [...new Set(data
-      .map((obj) => obj[field as keyof IRequests])
-      .filter((value): value is string => typeof value === "string"))];
-  
-    // Inicialize prevDataStructure com um valor padrão se for null ou undefined
-    const prevDataStructure = JSON.parse(await AsyncStorage.getItem('@storage_Key')) || [];
-  
-    const existingDataIndex = prevDataStructure.findIndex(item => Object.keys(item)[0] === field);
-    if (existingDataIndex !== -1) {
-      // Se os dados já existem, atualize-os
-      const updatedDataStructure = [...prevDataStructure];
-      const existingData = updatedDataStructure[existingDataIndex][field];
-      const updatedFieldData = [...new Set([...existingData.map(item => item.name), ...filteredData])].map(name => ({ name, activate: false }));
-      updatedDataStructure[existingDataIndex] = { [field]: updatedFieldData };
-      await AsyncStorage.setItem('@storage_Key', JSON.stringify(updatedDataStructure));
-    } else {
-      // Se os dados não existem, adicione-os
-      await AsyncStorage.setItem('@storage_Key', JSON.stringify([...prevDataStructure, { [field]: filteredData.map(name => ({ name, activate: false })) }]));
-    }
-  };
-
-  const FilterListItem = (data: IRequests[], field: string) => {
-    setList([
+    const filteredData = [
       ...new Set(
-        data.map((obj) => {
-          const value = obj[field as keyof IRequests];
-          return typeof value === "string" ? value : "";
-        })
+        data
+          .map((obj) => obj[field as keyof IRequests])
+          .filter((value): value is string => typeof value === "string")
       ),
-    ]);
+    ];
+
+    const getDataFromStorage = async (): Promise<DataStructure> => {
+      const data = await AsyncStorage.getItem("@storage_Key");
+      return data ? JSON.parse(data) : {};
+    };
+    
+    const setDataToStorage = async (data: DataStructure): Promise<void> => {
+      await AsyncStorage.setItem("@storage_Key", JSON.stringify(data));
+    };
+    
+    const updateData = async (field: string, filteredData: string[]) => {
+      const prevDataStructure = await getDataFromStorage();
+    
+      const existingData = prevDataStructure[field];
+      if (existingData) {
+        const updatedFieldData: DataItem[] = [
+          ...new Set([...existingData.map((item: DataItem) => item.name), ...filteredData]),
+        ].map((name: string) => ({ name, activate: false }));
+    
+        prevDataStructure[field] = updatedFieldData;
+      } else {
+        prevDataStructure[field] = filteredData.map((name: string) => ({ name, activate: false }));
+      }
+    
+      await setDataToStorage(prevDataStructure);
+    };
   };
 
   function renderItem({ item }: ListRenderItemInfo<IRequests>) {
     return <ListItem {...item} />;
   }
+
+  const handleSearchChange = (text: string) => {setSearchText(text)};
+
+  const filterData = () => {
+    if (searchText === "") {
+      setFilteredItems(data);
+    } else {
+      setFilteredItems(
+        data.filter((item) => {
+          if (item.CODCCUSTO.indexOf(searchText) > -1) {
+            return true;
+          } else {
+            return false;
+          }
+        })
+      );
+    }
+  }
+  
+  useEffect(()=> {
+    filterData()
+  },[searchText])
 
   useEffect(() => {
     setLoading(true);
@@ -110,6 +140,8 @@ export function List() {
       );
       setData([...data, ...response.data]);
       setPage(page + 1);
+      filterData()
+      
     } catch (error: Error | any) {
       if (error.code === "ECONNABORTED") {
         alert("A requisição demorou muito e foi interrompida");
@@ -146,11 +178,14 @@ export function List() {
   return (
     <S.Container>
       <FlatList
-        data={data}
+        data={filteredItems}
         keyExtractor={(item) => String(item.IDMOV)}
         ListHeaderComponent={
           <View style={styles.container}>
-            <ScreenHeader />
+            <ScreenHeader
+              searchText={searchText}
+              onChangeText={handleSearchChange}
+            />
             <FilterList
               shwModal={(id, idField) => handlePresentModalPress(id, idField)}
             />
@@ -170,7 +205,6 @@ export function List() {
         ref={bottomSheetRef}
         title={idTitle}
         idField={idField}
-        data={dataStructure}
       />
     </S.Container>
   );
