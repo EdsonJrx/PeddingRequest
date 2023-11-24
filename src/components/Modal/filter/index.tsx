@@ -20,7 +20,7 @@ interface Props {
 const Filter = forwardRef<BottomSheetModal, Props>((props, ref) => {
   const [data, setData] = useState<DataProps>({} as DataProps);
 
-  const snapPoints = ["95%"];
+  const snapPoints = ["80%"];
   const renderBackdrop = useCallback(
     (props: any) => (
       <BottomSheetBackdrop
@@ -36,7 +36,6 @@ const Filter = forwardRef<BottomSheetModal, Props>((props, ref) => {
     const fetchData = async () => {
       try {
         const jsonValue = await AsyncStorage.getItem("@storage_Key");
-        console.log('Data from storage:', jsonValue);
         return jsonValue != null ? JSON.parse(jsonValue) : {};
       } catch (e) {
         console.log(e);
@@ -44,9 +43,7 @@ const Filter = forwardRef<BottomSheetModal, Props>((props, ref) => {
     };
   
     fetchData().then((data) => {
-      console.log('Fetched data:', data);
       if (data) {
-        console.log('Data for idField:', data);
         setData(data);
       }
     });

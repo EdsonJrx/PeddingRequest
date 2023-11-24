@@ -13,7 +13,7 @@ import { BottomSheetModal } from "@gorhom/bottom-sheet";
 
 import FilterList from "../filterList";
 import ListItem from "../listItem";
-import Filter,  {DataProps}  from "../Modal/filter";
+import Filter from "../Modal/filter";
 import FooterList from "../loading";
 
 import * as S from "./styles";
@@ -43,7 +43,7 @@ export function List() {
   const [idField, setIdField] = useState("");
   const [searchText, setSearchText] = useState<string>("");
   const [filteredItems, setFilteredItems] = useState<IRequests[]>([]);
-  const [dataStructure, setDataStructure] = useState<DataProps[]>([]);
+
 
   const bottomSheetRef = useRef<BottomSheetModal>(null);
   const handlePresentModalPress = (title: string, field: string) => {
@@ -69,7 +69,6 @@ export function List() {
     
     const setDataToStorage = async (data: DataStructure): Promise<void> => {
       await AsyncStorage.setItem("@storage_Key", JSON.stringify(data));
-      const teste = await AsyncStorage.getItem("@storage_Key");
     };
     
     const updateData = async (field: string, filteredData: string[]) => {
