@@ -10,7 +10,7 @@ interface ItemProps {
 }
 
 const DATA: ItemProps[] = [
-    { id: 1, text: "Usuário atual", idField:"", visible: false },
+    { id: 1, text: "Usuário atual", idField:"USER", visible: false },
     { id: 2, text: "Tipo Movimento", idField:"CODTMV", visible: true },
     { id: 3, text: "Centro de Custo", idField:"CODCCUSTO", visible: true },
     { id: 4, text: "Ordenação", idField:"", visible: true },

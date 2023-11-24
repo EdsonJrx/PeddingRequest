@@ -8,9 +8,8 @@ interface Item {
   activate: boolean;
 }
 
-interface DataProps {
-  CODCCUSTO: Item[];
-  CODTMV: Item[];
+export interface DataProps {
+  [key: string]: Item[];
 }
 
 interface Props {
@@ -19,7 +18,7 @@ interface Props {
 }
 
 const Filter = forwardRef<BottomSheetModal, Props>((props, ref) => {
-  const [data, setData] = useState<DataProps[]>();
+  const [data, setData] = useState<DataProps>({} as DataProps);
 
   const snapPoints = ["95%"];
   const renderBackdrop = useCallback(
@@ -37,29 +36,31 @@ const Filter = forwardRef<BottomSheetModal, Props>((props, ref) => {
     const fetchData = async () => {
       try {
         const jsonValue = await AsyncStorage.getItem("@storage_Key");
-        return jsonValue != null ? JSON.parse(jsonValue) : null;
+        console.log('Data from storage:', jsonValue);
+        return jsonValue != null ? JSON.parse(jsonValue) : {};
       } catch (e) {
         console.log(e);
       }
     };
-
+  
     fetchData().then((data) => {
-      if (data !== null) {
+      console.log('Fetched data:', data);
+      if (data) {
+        console.log('Data for idField:', data);
         setData(data);
       }
     });
   }, []);
+  
+  
 
-  const handleFilter = async (
-    dataIndex: number,
-    ccIndex: number,
-    idField: keyof DataProps
-  ) => {
-    const prevData = data ? JSON.parse(JSON.stringify(data)) : [];
+  const handleFilter = async (dataIndex: string, ccIndex: number) => {
+    const prevData = data ? JSON.parse(JSON.stringify(data)) : {};
 
-    prevData[dataIndex][idField][ccIndex].activate =
-      !prevData[dataIndex][idField][ccIndex].activate;
-
+    if (Array.isArray(prevData[dataIndex])) {
+      prevData[dataIndex][ccIndex].activate =
+        !prevData[dataIndex][ccIndex].activate;
+    }
     await AsyncStorage.setItem("@storage_Key", JSON.stringify(prevData));
     setData(prevData);
   };
@@ -74,22 +75,19 @@ const Filter = forwardRef<BottomSheetModal, Props>((props, ref) => {
       <S.Container>
         <S.containerHeadline>{props.title}</S.containerHeadline>
         <S.contentContainer>
-          {data &&
-            data.map((itemData, dataIndex) => {
-              const idField = props.idField as keyof DataProps;
-              return (
-                itemData[idField] &&
-                itemData[idField].map((item, ccIndex) => (
-                  <S.TextArea
-                    key={`${dataIndex}-${ccIndex}`}
-                    activate={item.activate}
-                    onPress={() => handleFilter(dataIndex, ccIndex, idField)}
-                  >
-                    <S.Text>{item.name}</S.Text>
-                  </S.TextArea>
-                ))
-              );
-            })}
+          {Object.keys(data).map((key) => {
+            if (key === props.idField && Array.isArray(data[key])) {
+              return data[key].map((item, ccIndex) => (
+                <S.TextArea
+                  key={`${key}-${ccIndex}`}
+                  activate={item.activate}
+                  onPress={() => handleFilter(key, ccIndex)}
+                >
+                  <S.Text>{item.name}</S.Text>
+                </S.TextArea>
+              ));
+            }
+          })}
         </S.contentContainer>
       </S.Container>
     </BottomSheetModal>

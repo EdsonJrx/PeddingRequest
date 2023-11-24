@@ -17,6 +17,8 @@ export const containerHeadline = styled.Text`
 export const contentContainer = styled.View`
     flex: 1;
     flex-direction:row;
+    flex-wrap:wrap;
+    justify-content:center;
 `
 export const TextArea = styled.TouchableOpacity<IfilterProps>`
     height:40px;
@@ -24,6 +26,7 @@ export const TextArea = styled.TouchableOpacity<IfilterProps>`
     padding: 5px 10px 5px 10px;
     justify-content: center;
     align-items: center;
+    margin-top:10px;
     margin-right:10px;
 
     border-radius: 5px;

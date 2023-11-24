@@ -13,12 +13,11 @@ import { BottomSheetModal } from "@gorhom/bottom-sheet";
 
 import FilterList from "../filterList";
 import ListItem from "../listItem";
-import Filter from "../Modal/filter";
+import Filter,  {DataProps}  from "../Modal/filter";
 import FooterList from "../loading";
 
 import * as S from "./styles";
 import { ScreenHeader } from "../screenHeader";
-
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 type DataItem = {
@@ -44,33 +43,25 @@ export function List() {
   const [idField, setIdField] = useState("");
   const [searchText, setSearchText] = useState<string>("");
   const [filteredItems, setFilteredItems] = useState<IRequests[]>([]);
-
-  const storeData = async (value: string) => {
-    try {
-      const jsonValue = JSON.stringify(value);
-      await AsyncStorage.setItem("@storage_Key", jsonValue);
-    } catch (e) {
-      console.log(e);
-    }
-  };
+  const [dataStructure, setDataStructure] = useState<DataProps[]>([]);
 
   const bottomSheetRef = useRef<BottomSheetModal>(null);
   const handlePresentModalPress = (title: string, field: string) => {
     setIdTitle(title);
     setIdField(field);
     handleButtonPress(field);
-    bottomSheetRef.current?.present();
+    field != 'USER'?bottomSheetRef.current?.present(): null;
   };
 
   const handleButtonPress = async (field: string) => {
+
     const filteredData = [
       ...new Set(
-        data
+        filteredItems
           .map((obj) => obj[field as keyof IRequests])
           .filter((value): value is string => typeof value === "string")
       ),
     ];
-
     const getDataFromStorage = async (): Promise<DataStructure> => {
       const data = await AsyncStorage.getItem("@storage_Key");
       return data ? JSON.parse(data) : {};
@@ -78,25 +69,28 @@ export function List() {
     
     const setDataToStorage = async (data: DataStructure): Promise<void> => {
       await AsyncStorage.setItem("@storage_Key", JSON.stringify(data));
+      const teste = await AsyncStorage.getItem("@storage_Key");
     };
     
     const updateData = async (field: string, filteredData: string[]) => {
-      const prevDataStructure = await getDataFromStorage();
+      let data = await getDataFromStorage();
+      let existingData = data[field];
     
-      const existingData = prevDataStructure[field];
       if (existingData) {
         const updatedFieldData: DataItem[] = [
-          ...new Set([...existingData.map((item: DataItem) => item.name), ...filteredData]),
+          ...new Set([...existingData.map(item => item.name), ...filteredData]),
         ].map((name: string) => ({ name, activate: false }));
     
-        prevDataStructure[field] = updatedFieldData;
+        data[field] = updatedFieldData;
       } else {
-        prevDataStructure[field] = filteredData.map((name: string) => ({ name, activate: false }));
+        data[field] = filteredData.map((name: string) => ({ name, activate: false }));
       }
     
-      await setDataToStorage(prevDataStructure);
+      await setDataToStorage(data);
     };
+    await updateData(field, filteredData);
   };
+
 
   function renderItem({ item }: ListRenderItemInfo<IRequests>) {
     return <ListItem {...item} />;
@@ -125,6 +119,7 @@ export function List() {
   },[searchText])
 
   useEffect(() => {
+    AsyncStorage.removeItem('@storage_Key')
     setLoading(true);
     loadApi().then(() => setLoading(false));
   }, []);
