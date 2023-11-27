@@ -1,4 +1,5 @@
 export interface IRequests {
+    [key: string]: string | number | undefined;
     "CODCCUSTO": string,
     "NUMEROMOV": string,
     "DATACRIACAO":string,

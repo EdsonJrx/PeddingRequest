@@ -29,7 +29,8 @@ type DataStructure = {
   [key: string]: DataItem[];
 };
 
-const ROOT ="framework/v1/consultaSQLServer/RealizaConsulta/API.1.2/0/G?parameters=";
+const ROOT =
+  "framework/v1/consultaSQLServer/RealizaConsulta/API.1.2/0/G?parameters=";
 const ROWS = 10;
 const USUARIO = "edson.junior";
 
@@ -44,17 +45,15 @@ export function List() {
   const [searchText, setSearchText] = useState<string>("");
   const [filteredItems, setFilteredItems] = useState<IRequests[]>([]);
 
-
   const bottomSheetRef = useRef<BottomSheetModal>(null);
   const handlePresentModalPress = (title: string, field: string) => {
     setIdTitle(title);
     setIdField(field);
     handleButtonPress(field);
-    field != 'USER'?bottomSheetRef.current?.present(): null;
+    field != "USER" ? bottomSheetRef.current?.present() : null;
   };
 
   const handleButtonPress = async (field: string) => {
-
     const filteredData = [
       ...new Set(
         filteredItems
@@ -66,41 +65,45 @@ export function List() {
       const data = await AsyncStorage.getItem("@storage_Key");
       return data ? JSON.parse(data) : {};
     };
-    
+
     const setDataToStorage = async (data: DataStructure): Promise<void> => {
       await AsyncStorage.setItem("@storage_Key", JSON.stringify(data));
     };
-    
+
     const updateData = async (field: string, filteredData: string[]) => {
       let data = await getDataFromStorage();
       let existingData = data[field];
-    
+
       if (existingData) {
         const updatedFieldData: DataItem[] = [
-          ...new Set([...existingData.map(item => item.name), ...filteredData]),
-        ].map((name: string) => ({ name, activate: false }));
-    
+          ...new Set([
+            ...existingData.map((item) => item.name),
+            ...filteredData,
+          ]),
+        ].map((name: string) => ({ name, activate: true }));
+
         data[field] = updatedFieldData;
       } else {
-        data[field] = filteredData.map((name: string) => ({ name, activate: false }));
+        data[field] = filteredData.map((name: string) => ({
+          name,
+          activate: true,
+        }));
       }
-    
+
       await setDataToStorage(data);
     };
     await updateData(field, filteredData);
   };
 
-
   function renderItem({ item }: ListRenderItemInfo<IRequests>) {
     return <ListItem {...item} />;
   }
 
-  const handleSearchChange = (text: string) => {setSearchText(text)};
+  const handleSearchChange = (text: string) => {
+    setSearchText(text);
+  };
 
   const filterData = () => {
-    if (searchText === "") {
-      setFilteredItems(data);
-    } else {
       setFilteredItems(
         data.filter((item) => {
           if (item.CODCCUSTO.indexOf(searchText) > -1) {
@@ -111,14 +114,37 @@ export function List() {
         })
       );
     }
-  }
-  
-  useEffect(()=> {
-    filterData()
-  },[searchText])
+
+  const filterChip = async () => {
+    const tListString = await AsyncStorage.getItem("@storage_Key");
+    if (tListString !== null) {
+      const tList: DataStructure = JSON.parse(tListString);
+      setFilteredItems(
+        data.filter((item) => {
+          for (let key in tList) {
+            if (
+              key in item &&
+              !tList[key].some(
+                (f: DataItem) => f.activate && f.name === item[key]
+              )
+            ) {
+              return false;
+            }
+          }
+          return true;
+        })
+      );
+    } else {
+      setFilteredItems(data);
+    }
+  };
 
   useEffect(() => {
-    AsyncStorage.removeItem('@storage_Key')
+    filterData();
+  }, [searchText]);
+
+  useEffect(() => {
+    AsyncStorage.removeItem("@storage_Key");
     setLoading(true);
     loadApi().then(() => setLoading(false));
   }, []);
@@ -134,8 +160,7 @@ export function List() {
       );
       setData([...data, ...response.data]);
       setPage(page + 1);
-      filterData()
-      
+      filterChip();
     } catch (error: Error | any) {
       if (error.code === "ECONNABORTED") {
         alert("A requisição demorou muito e foi interrompida");
@@ -199,6 +224,7 @@ export function List() {
         ref={bottomSheetRef}
         title={idTitle}
         idField={idField}
+        callFilter={filterChip}
       />
     </S.Container>
   );

@@ -39,4 +39,7 @@ export const Text = styled.Text`
     font-family: 'Inter_400Regular';
     font-size: 12px;
 `
+export const Loading = styled.ActivityIndicator`
+    size:45px;
+`
 
