@@ -41,5 +41,6 @@ export const Text = styled.Text`
 `
 export const Loading = styled.ActivityIndicator`
     size:45px;
+    color: #000;
 `
 

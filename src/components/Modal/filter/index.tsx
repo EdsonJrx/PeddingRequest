@@ -2,6 +2,8 @@ import React, { forwardRef, useCallback, useEffect, useState } from "react";
 import { BottomSheetBackdrop, BottomSheetModal } from "@gorhom/bottom-sheet";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as S from "./styles";
+import FooterList from "../../loading";
+import { View } from "react-native";
 
 interface Item {
   name: string;
@@ -18,9 +20,18 @@ interface Props {
   callFilter : () => void;
 }
 
+type DataItem = {
+  name: string;
+  activate: boolean;
+};
+
+type DataStructure = {
+  [key: string]: DataItem[];
+};
+
 const Filter = forwardRef<BottomSheetModal, Props>((props, ref) => {
   const [data, setData] = useState<DataProps>({} as DataProps);
-  const [isLoading, setIsLoading] = useState(true); // Adicione um estado de carregamento
+  const [isLoading, setIsLoading] = useState(true)
 
   const snapPoints = ["80%"];
   const renderBackdrop = useCallback(
@@ -33,17 +44,23 @@ const Filter = forwardRef<BottomSheetModal, Props>((props, ref) => {
     ),
     []
   );
-
+  const getDataFromStorage = async (): Promise<DataStructure> => {
+    const data = await AsyncStorage.getItem("@storage_Key");
+    return data ? JSON.parse(data) : {};
+  };
+  const jsonValue = getDataFromStorage();
+  
   useEffect(() => {
     const fetchData = async () => {
-      setIsLoading(true); // Inicie o carregamento
+      setIsLoading(true);
       try {
-        const jsonValue = await AsyncStorage.getItem("@storage_Key");
-        return jsonValue != null ? JSON.parse(jsonValue) : {};
+        const jsonValue = await getDataFromStorage();
+        console.log('oi',jsonValue)
+        return jsonValue;
       } catch (e) {
-        console.log(e);
+        console.log('Error fetching data:', e);
       } finally {
-        setIsLoading(false); // Pare o carregamento quando os dados forem buscados
+        setIsLoading(false);
       }
     };
   
@@ -52,7 +69,7 @@ const Filter = forwardRef<BottomSheetModal, Props>((props, ref) => {
         setData(data);
       }
     });
-  }, []);
+  }, [props.title]);
 
   const handleFilter = async (dataIndex: string, ccIndex: number) => {
     const prevData = data ? JSON.parse(JSON.stringify(data)) : {};
@@ -75,14 +92,13 @@ const Filter = forwardRef<BottomSheetModal, Props>((props, ref) => {
       snapPoints={snapPoints}
       backdropComponent={renderBackdrop}
     >
-      {isLoading ? (
-        <S.Loading />
-      ) : (
+      
         <S.Container>
-          <S.containerHeadline>{props.title}</S.containerHeadline>
+          <S.containerHeadline>{props.title}{props.idField}</S.containerHeadline>
+          <FooterList Load={isLoading}/>
           <S.contentContainer>
             {Object.keys(data).map((key) => {
-              if (key === props.idField && Array.isArray(data[key])) {
+              if (key == props.idField && Array.isArray(data[key])) {
                 return data[key].map((item, ccIndex) => (
                   <S.TextArea
                     key={`${key}-${ccIndex}`}
@@ -96,7 +112,6 @@ const Filter = forwardRef<BottomSheetModal, Props>((props, ref) => {
             })}
           </S.contentContainer>
         </S.Container>
-      )}
     </BottomSheetModal>
   );
 });

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   FlatList,
   ListRenderItemInfo,
@@ -31,7 +31,7 @@ type DataStructure = {
 
 const ROOT =
   "framework/v1/consultaSQLServer/RealizaConsulta/API.1.2/0/G?parameters=";
-const ROWS = 10;
+const ROWS = 100;
 const USUARIO = "edson.junior";
 
 export function List() {
@@ -44,19 +44,21 @@ export function List() {
   const [idField, setIdField] = useState("");
   const [searchText, setSearchText] = useState<string>("");
   const [filteredItems, setFilteredItems] = useState<IRequests[]>([]);
+  const [searchFilteredItems, setSearchFilteredItems] = useState<IRequests[]>([]);
 
   const bottomSheetRef = useRef<BottomSheetModal>(null);
-  const handlePresentModalPress = (title: string, field: string) => {
+
+  const handlePresentModalPress = useCallback((title: string, field: string, Items: IRequests[]) => {
     setIdTitle(title);
     setIdField(field);
-    handleButtonPress(field);
     field != "USER" ? bottomSheetRef.current?.present() : null;
-  };
+    handleButtonPress(field,Items);
+  }, []);
 
-  const handleButtonPress = async (field: string) => {
+  const handleButtonPress = useCallback(async (field: string, Items: IRequests[]) => {
     const filteredData = [
       ...new Set(
-        filteredItems
+        Items
           .map((obj) => obj[field as keyof IRequests])
           .filter((value): value is string => typeof value === "string")
       ),
@@ -81,7 +83,6 @@ export function List() {
             ...filteredData,
           ]),
         ].map((name: string) => ({ name, activate: true }));
-
         data[field] = updatedFieldData;
       } else {
         data[field] = filteredData.map((name: string) => ({
@@ -89,33 +90,34 @@ export function List() {
           activate: true,
         }));
       }
-
+      
       await setDataToStorage(data);
+      console.log(data)
     };
     await updateData(field, filteredData);
-  };
+  }, [searchFilteredItems]);
 
   function renderItem({ item }: ListRenderItemInfo<IRequests>) {
     return <ListItem {...item} />;
   }
 
-  const handleSearchChange = (text: string) => {
+  const handleSearchChange = useCallback((text: string) => {
     setSearchText(text);
-  };
+  }, []);
 
-  const filterData = () => {
-      setFilteredItems(
-        data.filter((item) => {
-          if (item.CODCCUSTO.indexOf(searchText) > -1) {
-            return true;
-          } else {
-            return false;
-          }
-        })
-      );
-    }
+  const filterData = useCallback(() => {
+    setSearchFilteredItems(
+      filteredItems.filter((item) => {
+        if (item.CODCCUSTO.indexOf(searchText) > -1) {
+          return true;
+        } else {
+          return false;
+        }
+      })
+    );
+  }, [filteredItems, searchText]);
 
-  const filterChip = async () => {
+  const filterChip = useCallback(async () => {
     const tListString = await AsyncStorage.getItem("@storage_Key");
     if (tListString !== null) {
       const tList: DataStructure = JSON.parse(tListString);
@@ -137,11 +139,15 @@ export function List() {
     } else {
       setFilteredItems(data);
     }
-  };
+  }, [data]);
 
   useEffect(() => {
     filterData();
-  }, [searchText]);
+  }, [filteredItems, filterData]);
+
+  useEffect(() => {
+    filterChip();
+  }, [data, filterChip]);
 
   useEffect(() => {
     AsyncStorage.removeItem("@storage_Key");
@@ -149,7 +155,7 @@ export function List() {
     loadApi().then(() => setLoading(false));
   }, []);
 
-  async function loadApi() {
+  const loadApi = useCallback(async () => {
     if (hasError) {
       return;
     }
@@ -160,44 +166,45 @@ export function List() {
       );
       setData([...data, ...response.data]);
       setPage(page + 1);
-      filterChip();
     } catch (error: Error | any) {
       if (error.code === "ECONNABORTED") {
         alert("A requisição demorou muito e foi interrompida");
-        setHasError(true);
       } else {
         alert(error);
-        setHasError(true);
       }
+      setHasError(true);
     }
-  }
-  const onEndReached = () => {
-    setLoading(true);
-    setHasError(false);
-    loadApi()
-      .then(() => setLoading(false))
-      .catch((e) => {
-        alert(e);
-        setHasError(true);
-      });
-  };
+  }, [data, page, hasError]);
 
-  const onRefresh = () => {
-    setRefreshing(true);
-    setHasError(false);
-    setPage(1);
-    loadApi()
-      .then(() => setRefreshing(false))
-      .catch((e) => {
-        alert(e);
-        setHasError(true);
-      });
-  };
+  const onEndReached = useCallback(() => {
+    if (!loading && !hasError) {
+      setLoading(true);
+      loadApi()
+        .then(() => setLoading(false))
+        .catch((e) => {
+          alert(e);
+          setHasError(true);
+        });
+    }
+  }, [loading, hasError, loadApi]);
+
+  const onRefresh = useCallback(() => {
+    if (!refreshing && !hasError) {
+      setRefreshing(true);
+      setPage(1);
+      loadApi()
+        .then(() => setRefreshing(false))
+        .catch((e) => {
+          alert(e);
+          setHasError(true);
+        });
+    }
+  }, [refreshing, hasError, loadApi]);
 
   return (
     <S.Container>
       <FlatList
-        data={filteredItems}
+        data={searchFilteredItems}
         keyExtractor={(item) => String(item.IDMOV)}
         ListHeaderComponent={
           <View style={styles.container}>
@@ -206,15 +213,15 @@ export function List() {
               onChangeText={handleSearchChange}
             />
             <FilterList
-              shwModal={(id, idField) => handlePresentModalPress(id, idField)}
+              shwModal={(id, idField) => handlePresentModalPress(id, idField, searchFilteredItems)}
             />
           </View>
         }
         renderItem={renderItem}
         showsVerticalScrollIndicator={false}
         onEndReached={onEndReached}
-        onEndReachedThreshold={0.1}
-        ListFooterComponent={<FooterList Load={loading} />}
+        onEndReachedThreshold={0}
+        ListFooterComponent={() => (<View><FooterList Load={loading}/></View>)}
         ItemSeparatorComponent={Separator}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
