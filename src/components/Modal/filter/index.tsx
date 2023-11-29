@@ -2,8 +2,6 @@ import React, { forwardRef, useCallback, useEffect, useState } from "react";
 import { BottomSheetBackdrop, BottomSheetModal } from "@gorhom/bottom-sheet";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as S from "./styles";
-import FooterList from "../../loading";
-import { View } from "react-native";
 
 interface Item {
   name: string;
@@ -31,7 +29,6 @@ type DataStructure = {
 
 const Filter = forwardRef<BottomSheetModal, Props>((props, ref) => {
   const [data, setData] = useState<DataProps>({} as DataProps);
-  const [isLoading, setIsLoading] = useState(true)
 
   const snapPoints = ["80%"];
   const renderBackdrop = useCallback(
@@ -52,15 +49,11 @@ const Filter = forwardRef<BottomSheetModal, Props>((props, ref) => {
   
   useEffect(() => {
     const fetchData = async () => {
-      setIsLoading(true);
       try {
         const jsonValue = await getDataFromStorage();
-        console.log('oi',jsonValue)
         return jsonValue;
       } catch (e) {
         console.log('Error fetching data:', e);
-      } finally {
-        setIsLoading(false);
       }
     };
   
@@ -69,10 +62,11 @@ const Filter = forwardRef<BottomSheetModal, Props>((props, ref) => {
         setData(data);
       }
     });
-  }, [props.title]);
+  }, [props.idField]);
 
   const handleFilter = async (dataIndex: string, ccIndex: number) => {
     const prevData = data ? JSON.parse(JSON.stringify(data)) : {};
+    console.log(ccIndex)
 
     if (Array.isArray(prevData[dataIndex])) {
       prevData[dataIndex][ccIndex].activate =
@@ -85,6 +79,21 @@ const Filter = forwardRef<BottomSheetModal, Props>((props, ref) => {
     }
   };
 
+  const handleAllFilter = async (dataIndex: string) => {
+    const prevData = data ? JSON.parse(JSON.stringify(data)) : {};
+
+    if (Array.isArray(prevData[dataIndex])) {
+      prevData[dataIndex].forEach(item => {
+        item.activate = false;
+      });
+    }
+    await AsyncStorage.setItem("@storage_Key", JSON.stringify(prevData));
+    setData(prevData);
+    if (typeof props.callFilter === 'function') {
+      props.callFilter();
+    }
+};
+
   return (
     <BottomSheetModal
       ref={ref}
@@ -92,10 +101,8 @@ const Filter = forwardRef<BottomSheetModal, Props>((props, ref) => {
       snapPoints={snapPoints}
       backdropComponent={renderBackdrop}
     >
-      
         <S.Container>
-          <S.containerHeadline>{props.title}{props.idField}</S.containerHeadline>
-          <FooterList Load={isLoading}/>
+          <S.containerHeadline>{props.title}</S.containerHeadline>
           <S.contentContainer>
             {Object.keys(data).map((key) => {
               if (key == props.idField && Array.isArray(data[key])) {
@@ -105,12 +112,15 @@ const Filter = forwardRef<BottomSheetModal, Props>((props, ref) => {
                     activate={item.activate}
                     onPress={() => handleFilter(key, ccIndex)}
                   >
-                    <S.Text>{item.name}</S.Text>
+                    <S.Text activate={item.activate}>{item.name}</S.Text>
                   </S.TextArea>
                 ));
               }
             })}
           </S.contentContainer>
+          <S.FooterTextArea>
+            <S.FooterText onPress={() => handleAllFilter(props.idField)} >Limpar todos</S.FooterText>
+          </S.FooterTextArea>
         </S.Container>
     </BottomSheetModal>
   );

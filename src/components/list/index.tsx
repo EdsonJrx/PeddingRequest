@@ -48,14 +48,15 @@ export function List() {
 
   const bottomSheetRef = useRef<BottomSheetModal>(null);
 
-  const handlePresentModalPress = useCallback((title: string, field: string, Items: IRequests[]) => {
+  const handlePresentModalPress = async (title: string, field: string) => {
     setIdTitle(title);
     setIdField(field);
-    field != "USER" ? bottomSheetRef.current?.present() : null;
-    handleButtonPress(field,Items);
-  }, []);
+    field != "USER" ? bottomSheetRef.current?.present() : null; 
 
-  const handleButtonPress = useCallback(async (field: string, Items: IRequests[]) => {
+  }
+
+  const handleButtonPress = useCallback(async (field: string, Items: IRequests[], id:string) => {
+    
     const filteredData = [
       ...new Set(
         Items
@@ -91,8 +92,10 @@ export function List() {
         }));
       }
       
-      await setDataToStorage(data);
-      console.log(data)
+      await setDataToStorage(data).then(() => {
+        handlePresentModalPress(id, field);
+      });
+      
     };
     await updateData(field, filteredData);
   }, [searchFilteredItems]);
@@ -213,7 +216,7 @@ export function List() {
               onChangeText={handleSearchChange}
             />
             <FilterList
-              shwModal={(id, idField) => handlePresentModalPress(id, idField, searchFilteredItems)}
+              shwModal={(id, idField) => handleButtonPress(idField, searchFilteredItems, id)}
             />
           </View>
         }

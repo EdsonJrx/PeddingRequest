@@ -1,7 +1,7 @@
 import styled from 'styled-components/native'
 
 export interface IfilterProps{
-    activate:boolean
+    activate?:boolean
 }
 export const Container = styled.View`
     flex: 1;
@@ -31,13 +31,27 @@ export const TextArea = styled.TouchableOpacity<IfilterProps>`
 
     border-radius: 5px;
     border: 1.2px solid;
-    border-color: ${({theme, activate})=> activate ? theme.COLORS.INFO:theme.COLORS.TEXT_SECONDARY };
+    border-color: ${({theme, activate})=> activate ? theme.COLORS.INFO : theme.COLORS.TEXT_SECONDARY };
+    background-color: ${({theme, activate})=> activate ? theme.COLORS.INFO_SELECTED : theme.COLORS.BACKGROUND };
 `
-export const Text = styled.Text`
-    color: #000;
+export const Text = styled.Text<IfilterProps>`
+    color: ${({theme, activate})=> activate ? theme.COLORS.INFO : theme.COLORS.TEXT_SECONDARY };
     text-align: center;
     font-family: 'Inter_400Regular';
     font-size: 12px;
+    font-weight: 700;
+`
+export const FooterText = styled.Text<IfilterProps>`
+    color: ${({theme })=> theme.COLORS.INFO };
+    text-align: center;
+    font-family: 'Inter_400Regular';
+    font-size: 16px;
+    font-weight: 500;
+    align-self:flex-end;
+    margin-bottom:20px;
+`
+export const FooterTextArea = styled.TouchableOpacity`
+    
 `
 export const Loading = styled.ActivityIndicator`
     size:45px;
