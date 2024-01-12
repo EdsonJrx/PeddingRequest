@@ -16,6 +16,7 @@ interface Props {
   title: string;
   idField: string;
   callFilter : () => void;
+  countActive : () => void;
 }
 
 type DataItem = {
@@ -66,7 +67,6 @@ const Filter = forwardRef<BottomSheetModal, Props>((props, ref) => {
 
   const handleFilter = async (dataIndex: string, ccIndex: number) => {
     const prevData = data ? JSON.parse(JSON.stringify(data)) : {};
-    console.log(ccIndex)
 
     if (Array.isArray(prevData[dataIndex])) {
       prevData[dataIndex][ccIndex].activate =
@@ -100,6 +100,7 @@ const Filter = forwardRef<BottomSheetModal, Props>((props, ref) => {
       index={0}
       snapPoints={snapPoints}
       backdropComponent={renderBackdrop}
+      onDismiss={() => {props.countActive()}}
     >
         <S.Container>
           <S.containerHeadline>{props.title}</S.containerHeadline>

@@ -19,6 +19,8 @@ import FooterList from "../loading";
 import * as S from "./styles";
 import { ScreenHeader } from "../screenHeader";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { countActiveItems } from "../../services/countActivate";
+import LoadMore from "../loadMore";
 
 type DataItem = {
   name: string;
@@ -45,6 +47,7 @@ export function List() {
   const [searchText, setSearchText] = useState<string>("");
   const [filteredItems, setFilteredItems] = useState<IRequests[]>([]);
   const [searchFilteredItems, setSearchFilteredItems] = useState<IRequests[]>([]);
+  const [activeCounts, setActiveCounts] = useState({"CODCCUSTO": 0, "CODTMV": 0});
 
   const bottomSheetRef = useRef<BottomSheetModal>(null);
 
@@ -91,7 +94,7 @@ export function List() {
           activate: true,
         }));
       }
-      
+
       await setDataToStorage(data).then(() => {
         handlePresentModalPress(id, field);
       });
@@ -99,6 +102,15 @@ export function List() {
     };
     await updateData(field, filteredData);
   }, [searchFilteredItems]);
+
+  const countActive = async () => {
+    const getDataFromStorage = async (): Promise<DataStructure> => {
+      const data = await AsyncStorage.getItem("@storage_Key");
+      return data ? JSON.parse(data) : {};
+    };
+    let data1 = await getDataFromStorage();
+    setActiveCounts(countActiveItems(data1, ["CODCCUSTO", "CODTMV"]));
+  }
 
   function renderItem({ item }: ListRenderItemInfo<IRequests>) {
     return <ListItem {...item} />;
@@ -153,11 +165,12 @@ export function List() {
   }, [data, filterChip]);
 
   useEffect(() => {
-    AsyncStorage.removeItem("@storage_Key");
+    //AsyncStorage.removeItem("@storage_Key");
+    countActive();
     setLoading(true);
     loadApi().then(() => setLoading(false));
   }, []);
-
+//==================================================================================================================
   const loadApi = useCallback(async () => {
     if (hasError) {
       return;
@@ -204,6 +217,10 @@ export function List() {
     }
   }, [refreshing, hasError, loadApi]);
 
+  
+
+
+
   return (
     <S.Container>
       <FlatList
@@ -216,15 +233,19 @@ export function List() {
               onChangeText={handleSearchChange}
             />
             <FilterList
+              countActive={activeCounts}
               shwModal={(id, idField) => handleButtonPress(idField, searchFilteredItems, id)}
             />
           </View>
         }
+        
         renderItem={renderItem}
         showsVerticalScrollIndicator={false}
-        onEndReached={onEndReached}
-        onEndReachedThreshold={0}
-        ListFooterComponent={() => (<View><FooterList Load={loading}/></View>)}
+        maxToRenderPerBatch = {10}
+        disableVirtualization
+        //onEndReached={onEndReached}
+        //onEndReachedThreshold={0.1}
+        ListFooterComponent={() => (<View><FooterList Load={loading}/><LoadMore Load={loading} onEndReached={onEndReached}/></View>)}
         ItemSeparatorComponent={Separator}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
@@ -235,6 +256,7 @@ export function List() {
         title={idTitle}
         idField={idField}
         callFilter={filterChip}
+        countActive={countActive}
       />
     </S.Container>
   );
