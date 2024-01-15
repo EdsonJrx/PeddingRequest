@@ -2,11 +2,11 @@ import styled from "styled-components/native";
 import { Ionicons } from '@expo/vector-icons'
 
 export interface ChipProps {
-    id?: number;
+    id: string;
     text: string;
     visible: boolean;
     shwModal: () => void;
-    qtd?: number;
+    qtd: number ;
 }
 
 export const TextArea = styled.TouchableOpacity<ChipProps>`
@@ -30,5 +30,5 @@ export const Text = styled.Text<ChipProps>`
 `
 export const Icon = styled(Ionicons)<ChipProps>`
     font-size:12px;
-    color: ${({theme}) => theme.COLORS.INFO}; 
+    color: ${({theme,qtd}) => qtd > 0 ? theme.COLORS.INFO : theme.COLORS.TEXT_SECONDARY};
 `

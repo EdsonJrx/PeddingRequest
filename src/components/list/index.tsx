@@ -47,14 +47,15 @@ export function List() {
   const [searchText, setSearchText] = useState<string>("");
   const [filteredItems, setFilteredItems] = useState<IRequests[]>([]);
   const [searchFilteredItems, setSearchFilteredItems] = useState<IRequests[]>([]);
-  const [activeCounts, setActiveCounts] = useState({"CODCCUSTO": 0, "CODTMV": 0});
+  const [activeCounts, setActiveCounts] = useState<{ [key: string]: number }>({});
+
 
   const bottomSheetRef = useRef<BottomSheetModal>(null);
 
   const handlePresentModalPress = async (title: string, field: string) => {
     setIdTitle(title);
     setIdField(field);
-    field != "USER" ? bottomSheetRef.current?.present() : null; 
+    field != "USER" ? bottomSheetRef.current?.present() : filterUser(); 
 
   }
 
@@ -109,7 +110,7 @@ export function List() {
       return data ? JSON.parse(data) : {};
     };
     let data1 = await getDataFromStorage();
-    setActiveCounts(countActiveItems(data1, ["CODCCUSTO", "CODTMV"]));
+    setActiveCounts(await countActiveItems(data1, ["CODCCUSTO", "CODTMV"]));
   }
 
   function renderItem({ item }: ListRenderItemInfo<IRequests>) {
@@ -123,14 +124,61 @@ export function List() {
   const filterData = useCallback(() => {
     setSearchFilteredItems(
       filteredItems.filter((item) => {
-        if (item.CODCCUSTO.indexOf(searchText) > -1) {
-          return true;
-        } else {
-          return false;
-        }
+        return Object.values(item).some(value =>
+          String(value).toLowerCase().includes(searchText.toLowerCase())
+        );
       })
     );
   }, [filteredItems, searchText]);
+
+  const filterUser = async() => {
+    const getDataFromStorage = async () => {
+      const data = await AsyncStorage.getItem("@storage_Count");
+      return data ? JSON.parse(data) : {};
+    };
+    let DATA2 = await getDataFromStorage();
+
+    if (DATA2['USER'] === 0) {
+      setSearchFilteredItems(
+        filteredItems.filter((item) => {
+          return item.USUARIOCRIACAO === 'edson.junior';
+        })
+      );
+      DATA2['USER'] = 1;
+      setActiveCounts(DATA2)
+    } else {
+      setSearchFilteredItems(filteredItems);
+      DATA2['USER'] = 0;
+      setActiveCounts(DATA2)
+    }
+    console.log('teste',DATA2)
+    const setDataToStorage1 = async (data) => {
+      await AsyncStorage.setItem("@storage_Count", JSON.stringify(data));
+    };
+    await setDataToStorage1(DATA2)
+    
+  };
+
+  const applyFilterUser = async() => {
+    const getDataFromStorage = async () => {
+      const data = await AsyncStorage.getItem("@storage_Count");
+      return data ? JSON.parse(data) : {};
+    };
+    let DATA2 = await getDataFromStorage();
+
+    if (DATA2['USER'] === 0) {
+      setSearchFilteredItems(
+        filteredItems.filter((item) => {
+          return item.USUARIOCRIACAO === 'edson.junior';
+        })
+      );
+      setActiveCounts(DATA2)
+    } else {
+      setSearchFilteredItems(filteredItems);
+      setActiveCounts(DATA2)
+    }
+    
+  };
 
   const filterChip = useCallback(async () => {
     const tListString = await AsyncStorage.getItem("@storage_Key");
@@ -167,6 +215,7 @@ export function List() {
   useEffect(() => {
     //AsyncStorage.removeItem("@storage_Key");
     countActive();
+    applyFilterUser();
     setLoading(true);
     loadApi().then(() => setLoading(false));
   }, []);
@@ -216,10 +265,6 @@ export function List() {
         });
     }
   }, [refreshing, hasError, loadApi]);
-
-  
-
-
 
   return (
     <S.Container>
