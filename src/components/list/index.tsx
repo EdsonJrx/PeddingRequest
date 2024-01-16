@@ -68,6 +68,7 @@ export function List() {
           .filter((value): value is string => typeof value === "string")
       ),
     ];
+    console.log('filteredData', filteredData)
     const getDataFromStorage = async (): Promise<DataStructure> => {
       const data = await AsyncStorage.getItem("@storage_Key");
       return data ? JSON.parse(data) : {};
@@ -80,21 +81,25 @@ export function List() {
     const updateData = async (field: string, filteredData: string[]) => {
       let data = await getDataFromStorage();
       let existingData = data[field];
-
+      console.log('existingData', existingData)
       if (existingData) {
+        console.log('entrei 1')
+        const existingNames = new Set(existingData.map((item) => item.name));
+        const newItems = filteredData.filter((name) => !existingNames.has(name));
         const updatedFieldData: DataItem[] = [
-          ...new Set([
-            ...existingData.map((item) => item.name),
-            ...filteredData,
-          ]),
-        ].map((name: string) => ({ name, activate: true }));
+          ...existingData,
+          ...newItems.map((name: string) => ({ name, activate: true })),
+        ];
+        console.log('updatedFieldData', updatedFieldData)
         data[field] = updatedFieldData;
       } else {
+        console.log('entrei 2')
         data[field] = filteredData.map((name: string) => ({
           name,
           activate: true,
         }));
       }
+      console.log('data', data)
 
       await setDataToStorage(data).then(() => {
         handlePresentModalPress(id, field);

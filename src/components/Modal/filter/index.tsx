@@ -46,7 +46,7 @@ const Filter = forwardRef<BottomSheetModal, Props>((props, ref) => {
     const data = await AsyncStorage.getItem("@storage_Key");
     return data ? JSON.parse(data) : {};
   };
-  const jsonValue = getDataFromStorage();
+  
   
   useEffect(() => {
     const fetchData = async () => {
@@ -58,9 +58,9 @@ const Filter = forwardRef<BottomSheetModal, Props>((props, ref) => {
       }
     };
   
-    fetchData().then((data) => {
-      if (data) {
-        setData(data);
+    fetchData().then((jsonValue) => {
+      if (jsonValue) {
+        setData(jsonValue);
       }
     });
   }, [props.idField]);

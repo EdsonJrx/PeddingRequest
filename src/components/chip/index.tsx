@@ -15,7 +15,7 @@ export function Chip ({id, qtd, text, visible, shwModal}:S.ChipProps) {
         <S.TextArea qtd={qtd[id] }onPress={()=>{shwModal()}}>
             <S.Text qtd={qtd[id]}>{text}</S.Text>
             {visible?
-                <S.Icon name='caret-down' />
+                <S.Icon qtd={qtd[id]} name='caret-down' />
             :null}
         </S.TextArea>
     )
