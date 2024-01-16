@@ -68,7 +68,6 @@ export function List() {
           .filter((value): value is string => typeof value === "string")
       ),
     ];
-    console.log('filteredData', filteredData)
     const getDataFromStorage = async (): Promise<DataStructure> => {
       const data = await AsyncStorage.getItem("@storage_Key");
       return data ? JSON.parse(data) : {};
@@ -81,26 +80,20 @@ export function List() {
     const updateData = async (field: string, filteredData: string[]) => {
       let data = await getDataFromStorage();
       let existingData = data[field];
-      console.log('existingData', existingData)
       if (existingData) {
-        console.log('entrei 1')
         const existingNames = new Set(existingData.map((item) => item.name));
         const newItems = filteredData.filter((name) => !existingNames.has(name));
         const updatedFieldData: DataItem[] = [
           ...existingData,
           ...newItems.map((name: string) => ({ name, activate: true })),
         ];
-        console.log('updatedFieldData', updatedFieldData)
         data[field] = updatedFieldData;
       } else {
-        console.log('entrei 2')
         data[field] = filteredData.map((name: string) => ({
           name,
           activate: true,
         }));
       }
-      console.log('data', data)
-
       await setDataToStorage(data).then(() => {
         handlePresentModalPress(id, field);
       });
@@ -115,7 +108,7 @@ export function List() {
       return data ? JSON.parse(data) : {};
     };
     let data1 = await getDataFromStorage();
-    setActiveCounts(await countActiveItems(data1, ["CODCCUSTO", "CODTMV"]));
+    setActiveCounts(await countActiveItems(data1, ["USUARIOCRIACAO", "CODCCUSTO", "CODTMV"]));
   }
 
   function renderItem({ item }: ListRenderItemInfo<IRequests>) {
@@ -137,12 +130,19 @@ export function List() {
   }, [filteredItems, searchText]);
 
   const filterUser = async() => {
-    const getDataFromStorage = async () => {
-      const data = await AsyncStorage.getItem("@storage_Count");
+    const getDataFromStorage = async (key) => {
+      const data = await AsyncStorage.getItem(key);
       return data ? JSON.parse(data) : {};
     };
-    let DATA2 = await getDataFromStorage();
-
+    let DATA2 = await getDataFromStorage("@storage_Count");
+    let DATA1 = await getDataFromStorage("@storage_Key");
+  
+    if (!DATA1["USUARIOCRIACAO"]) {
+      DATA1["USUARIOCRIACAO"] = [];
+    }
+  
+    const userIndex = DATA1["USUARIOCRIACAO"].findIndex(user => user.name === 'edson.junior');
+  
     if (DATA2['USER'] === 0) {
       setSearchFilteredItems(
         filteredItems.filter((item) => {
@@ -151,42 +151,30 @@ export function List() {
       );
       DATA2['USER'] = 1;
       setActiveCounts(DATA2)
+  
+      if (userIndex === -1) {
+        DATA1["USUARIOCRIACAO"].push({name: 'edson.junior', activate: true});
+      }
     } else {
-      setSearchFilteredItems(filteredItems);
+      setSearchFilteredItems(data);
       DATA2['USER'] = 0;
       setActiveCounts(DATA2)
+  
+      if (userIndex > -1) {
+        delete DATA1["USUARIOCRIACAO"];
+      }
     }
-    console.log('teste',DATA2)
-    const setDataToStorage1 = async (data) => {
-      await AsyncStorage.setItem("@storage_Count", JSON.stringify(data));
+    const setDataToStorage = async (key, data) => {
+      await AsyncStorage.setItem(key, JSON.stringify(data));
     };
-    await setDataToStorage1(DATA2)
-    
+    await setDataToStorage("@storage_Count", DATA2)
+  
+    await setDataToStorage("@storage_Key", DATA1)
   };
-
-  const applyFilterUser = async() => {
-    const getDataFromStorage = async () => {
-      const data = await AsyncStorage.getItem("@storage_Count");
-      return data ? JSON.parse(data) : {};
-    };
-    let DATA2 = await getDataFromStorage();
-
-    if (DATA2['USER'] === 0) {
-      setSearchFilteredItems(
-        filteredItems.filter((item) => {
-          return item.USUARIOCRIACAO === 'edson.junior';
-        })
-      );
-      setActiveCounts(DATA2)
-    } else {
-      setSearchFilteredItems(filteredItems);
-      setActiveCounts(DATA2)
-    }
-    
-  };
-
+  
   const filterChip = useCallback(async () => {
     const tListString = await AsyncStorage.getItem("@storage_Key");
+
     if (tListString !== null) {
       const tList: DataStructure = JSON.parse(tListString);
       setFilteredItems(
@@ -220,11 +208,10 @@ export function List() {
   useEffect(() => {
     //AsyncStorage.removeItem("@storage_Key");
     countActive();
-    applyFilterUser();
     setLoading(true);
     loadApi().then(() => setLoading(false));
   }, []);
-//==================================================================================================================
+
   const loadApi = useCallback(async () => {
     if (hasError) {
       return;
