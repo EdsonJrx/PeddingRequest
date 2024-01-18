@@ -2,7 +2,16 @@ import React, { forwardRef, useCallback, useEffect, useState } from "react";
 import { BottomSheetBackdrop, BottomSheetModal } from "@gorhom/bottom-sheet";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as S from "./styles";
-
+const DATA_ORDER = {
+  ORDER: [
+    { name: "CODCCUSTO", activate: false },
+    { name: "USUARIOCRIACAO", activate: true },
+    { name: "NUMEROMOV", activate: false },
+    { name: "DATACRIACAO", activate: false },
+    { name: "DATAENTREGA", activate: false },
+    { name: "CODTMV", activate: false },
+  ],
+};
 interface Item {
   name: string;
   activate: boolean;
@@ -15,8 +24,8 @@ export interface DataProps {
 interface Props {
   title: string;
   idField: string;
-  callFilter : () => void;
-  countActive : () => void;
+  callFilter: () => void;
+  countActive: () => void;
 }
 
 type DataItem = {
@@ -30,6 +39,7 @@ type DataStructure = {
 
 const Filter = forwardRef<BottomSheetModal, Props>((props, ref) => {
   const [data, setData] = useState<DataProps>({} as DataProps);
+  const [directionOrder, setDirectionOrder] = useState(false);
 
   const snapPoints = ["80%"];
   const renderBackdrop = useCallback(
@@ -46,23 +56,25 @@ const Filter = forwardRef<BottomSheetModal, Props>((props, ref) => {
     const data = await AsyncStorage.getItem("@storage_Key");
     return data ? JSON.parse(data) : {};
   };
-  
-  
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         const jsonValue = await getDataFromStorage();
         return jsonValue;
       } catch (e) {
-        console.log('Error fetching data:', e);
+        console.log("Error fetching data:", e);
       }
     };
-  
-    fetchData().then((jsonValue) => {
-      if (jsonValue) {
-        setData(jsonValue);
-      }
-    });
+    if (props.idField == "ORDER") {
+      setData(DATA_ORDER);
+    } else {
+      fetchData().then((jsonValue) => {
+        if (jsonValue) {
+          setData(jsonValue);
+        }
+      });
+    }
   }, [props.idField]);
 
   const handleFilter = async (dataIndex: string, ccIndex: number) => {
@@ -74,25 +86,44 @@ const Filter = forwardRef<BottomSheetModal, Props>((props, ref) => {
     }
     await AsyncStorage.setItem("@storage_Key", JSON.stringify(prevData));
     setData(prevData);
-    if (typeof props.callFilter === 'function') {
+    if (typeof props.callFilter === "function") {
       props.callFilter();
     }
   };
 
-  const handleAllFilter = async (dataIndex: string) => {
+  const handleUnselectAllFilter = async (dataIndex: string) => {
     const prevData = data ? JSON.parse(JSON.stringify(data)) : {};
 
     if (Array.isArray(prevData[dataIndex])) {
-      prevData[dataIndex].forEach(item => {
+      prevData[dataIndex].forEach((item) => {
         item.activate = false;
       });
     }
     await AsyncStorage.setItem("@storage_Key", JSON.stringify(prevData));
     setData(prevData);
-    if (typeof props.callFilter === 'function') {
+    if (typeof props.callFilter === "function") {
       props.callFilter();
     }
-};
+  };
+
+  const handleSelectAllFilter = async (dataIndex: string) => {
+    const prevData = data ? JSON.parse(JSON.stringify(data)) : {};
+
+    if (Array.isArray(prevData[dataIndex])) {
+      prevData[dataIndex].forEach((item) => {
+        item.activate = true;
+      });
+    }
+    await AsyncStorage.setItem("@storage_Key", JSON.stringify(prevData));
+    setData(prevData);
+    if (typeof props.callFilter === "function") {
+      props.callFilter();
+    }
+  };
+
+  const handleOrder = (key: number) => {
+    key===0 ? setDirectionOrder(true) : setDirectionOrder(false)
+  }
 
   return (
     <BottomSheetModal
@@ -100,29 +131,65 @@ const Filter = forwardRef<BottomSheetModal, Props>((props, ref) => {
       index={0}
       snapPoints={snapPoints}
       backdropComponent={renderBackdrop}
-      onDismiss={() => {props.countActive()}}
+      onDismiss={() => {
+        props.countActive();
+      }}
     >
-        <S.Container>
-          <S.containerHeadline>{props.title}</S.containerHeadline>
+      <S.Container>
+        <S.containerHeadline>{props.title}</S.containerHeadline>
+        <S.contentContainer>
+          {Object.keys(data).map((key) => {
+            if (key == props.idField && Array.isArray(data[key])) {
+              return data[key].map((item, ccIndex) => (
+                <S.TextArea
+                  key={`${key}-${ccIndex}`}
+                  activate={item.activate}
+                  onPress={() =>
+                    props.idField != "ORDER" ? handleFilter(key, ccIndex) : null
+                  }
+                >
+                  <S.Text activate={item.activate}>{item.name}</S.Text>
+                </S.TextArea>
+              ));
+            }
+          })}
+        </S.contentContainer>
+        {props.idField == "ORDER" && (
+          <S.containerHeadline>Direção:</S.containerHeadline>
+        )}
+        {props.idField == "ORDER" && (
           <S.contentContainer>
-            {Object.keys(data).map((key) => {
-              if (key == props.idField && Array.isArray(data[key])) {
-                return data[key].map((item, ccIndex) => (
-                  <S.TextArea
-                    key={`${key}-${ccIndex}`}
-                    activate={item.activate}
-                    onPress={() => handleFilter(key, ccIndex)}
-                  >
-                    <S.Text activate={item.activate}>{item.name}</S.Text>
-                  </S.TextArea>
-                ));
+            <S.TextArea
+              activate={directionOrder}
+              onPress={() =>
+                props.idField == "ORDER" ? handleOrder(0) : null
               }
-            })}
+            >
+              <S.Text activate={directionOrder}>ASC</S.Text>
+            </S.TextArea>
+            <S.TextArea
+              activate={!directionOrder}
+              onPress={() =>
+                props.idField == "ORDER" ? handleOrder(1) : null
+              }
+            >
+              <S.Text activate={!directionOrder}>DESC</S.Text>
+            </S.TextArea>
           </S.contentContainer>
+        )}
+        {props.idField != "ORDER" && (
           <S.FooterTextArea>
-            <S.FooterText onPress={() => handleAllFilter(props.idField)} >Limpar todos</S.FooterText>
+            <S.FooterText onPress={() => handleSelectAllFilter(props.idField)}>
+              Selecionar todos
+            </S.FooterText>
+            <S.FooterText
+              onPress={() => handleUnselectAllFilter(props.idField)}
+            >
+              Limpar todos
+            </S.FooterText>
           </S.FooterTextArea>
-        </S.Container>
+        )}
+      </S.Container>
     </BottomSheetModal>
   );
 });

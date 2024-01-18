@@ -13,7 +13,7 @@ const DATA: ItemProps[] = [
     { id: 1, text: "Usuário atual", idField:"USER", visible: false },
     { id: 2, text: "Tipo Movimento", idField:"CODTMV", visible: true },
     { id: 3, text: "Centro de Custo", idField:"CODCCUSTO", visible: true },
-    { id: 4, text: "Ordenação", idField:"", visible: true },
+    { id: 4, text: "Ordenar por:", idField:"ORDER", visible: true },
 ];
 
 const FilterList = memo(function ({shwModal,countActive}:{shwModal:(title:string,idFIeld:string)=> void,countActive: number  }) {
@@ -21,7 +21,7 @@ const FilterList = memo(function ({shwModal,countActive}:{shwModal:(title:string
     function renderItem({ item }:ListRenderItemInfo<ItemProps>) {
         return (
             <Chip 
-                text={item.idField != 'USER' && item.idField != ''? `${item.text} (${countActive[item.idField]})`:`${item.text}`} 
+                text={item.idField != 'USER' && item.idField != 'ORDER'? `${item.text} (${countActive[item.idField]})`:`${item.text}`} 
                 visible={item.visible} 
                 shwModal={()=>shwModal(item.text,item.idField)}
                 qtd={countActive}
