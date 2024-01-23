@@ -21,6 +21,12 @@ export default function StackRoutesLayout(){
                                 title: 'Inicio',
                             }}
                         />
+                        <Stack.Screen
+                            name="home/index"
+                            options={{
+                                title: 'home',
+                            }}
+                        />
                     </Stack>
                 </BottomSheetModalProvider>
             </FlatListProvider>

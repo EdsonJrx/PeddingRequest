@@ -121,7 +121,7 @@ const Filter = forwardRef<BottomSheetModal, Props>((props, ref) => {
     }
   };
 
-  const handleOrder = (key: number) => {
+  const handleOrderDirection = (key: number) => {
     key===0 ? setDirectionOrder(true) : setDirectionOrder(false)
   }
 
@@ -162,7 +162,7 @@ const Filter = forwardRef<BottomSheetModal, Props>((props, ref) => {
             <S.TextArea
               activate={directionOrder}
               onPress={() =>
-                props.idField == "ORDER" ? handleOrder(0) : null
+                props.idField == "ORDER" ? handleOrderDirection(0) : null
               }
             >
               <S.Text activate={directionOrder}>ASC</S.Text>
@@ -170,7 +170,7 @@ const Filter = forwardRef<BottomSheetModal, Props>((props, ref) => {
             <S.TextArea
               activate={!directionOrder}
               onPress={() =>
-                props.idField == "ORDER" ? handleOrder(1) : null
+                props.idField == "ORDER" ? handleOrderDirection(1) : null
               }
             >
               <S.Text activate={!directionOrder}>DESC</S.Text>
