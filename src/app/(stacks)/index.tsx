@@ -1,26 +1,34 @@
 import InputLogin from "../../components/InputLogin";
 import Button from "../../components/button";
-import { router } from "expo-router";
+import { useAuth } from "../../contexts/AuthContexts";
 import * as S from "./styles";
-import useLogin from "../../apis/list/Login";
+
 import { useEffect, useState } from "react";
 
-export default function Home() {
-  const { data, error, login, loading } = useLogin();
+export default function Login() {
 
   const [userName, setUserName] = useState("");
   const [password, setPassword] = useState("");
-  const handleLogin = () => {
-    login({ userName, password });
-    if (error) {
-      console.log(error);
-    } else {
-      console.log("Login:", data.access_token);
-	  router.replace("/home")
+
+  const {onLogin, onRegister, authState} = useAuth();
+
+  const handleLogin = async () => {
+    const result = await onLogin!(userName, password);
+    if (result && result.error) {
+      alert(result.msg);
     }
   };
 
-  //router.replace("/home");
+  // We automatically call the login after  a successful registration
+  const register = async () => {
+    const result = await onRegister!(userName, password);
+    if (result && result.error) {
+      alert(result.msg);
+    } else {
+      handleLogin();
+    }
+  }
+
   return (
     <S.Container>
       <S.Logo
@@ -38,7 +46,7 @@ export default function Home() {
         value={password}
         onChangeText={t => setPassword(t)}
       />
-      <Button text="Entrar" handleLogin={handleLogin} loading={loading} />
+      <Button text="Entrar" handleLogin={handleLogin} loading={false} />
     </S.Container>
   );
 }
