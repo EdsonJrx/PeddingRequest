@@ -9,7 +9,7 @@ import { AuthProvider, useAuth } from '../../contexts/AuthContexts';
 
 export default function StackRoutesLayout(){
     const {authState, onLogout } = useAuth();
-
+    console.log ("testeesseererer",authState?.authenticated)
     return (
         <AuthProvider>
             <ThemeProvider theme={light}>
@@ -18,21 +18,24 @@ export default function StackRoutesLayout(){
                         <Stack screenOptions={{
                             headerShown: false,
                         }}>
-                            { authState?.authenticated ? (
-                            <Stack.Screen
-                                 name="home/index"
-                                 options={{
-                                     title: 'home',
-                                 }}
-                             />
-                            ): (
                             <Stack.Screen
                                 name="index"
                                 options={{
                                     title: 'Inicio',
                                 }}
                             />
-                            )}
+                            <Stack.Screen
+                                 name="home/index"
+                                 options={{
+                                     title: 'home',
+                                 }}
+                             />
+                             <Stack.Screen
+                                 name="login/index"
+                                 options={{
+                                     title: 'login',
+                                 }}
+                             />
                         </Stack>
                     </BottomSheetModalProvider>
                 </FlatListProvider>
