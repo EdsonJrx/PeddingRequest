@@ -13,6 +13,16 @@ export const Logo = styled.Image`
     height: 150px;
     margin-bottom: 20px;
 `
-export const Loding = styled.ActivityIndicator`
+export const TextButton = styled.Text`
     color: ${({ theme }) => theme.COLORS.TEXT_PRIMARY};
-` 
+    font-size: 24px;
+`
+export const Button = styled.TouchableOpacity`
+    background: ${({ theme }) => theme.COLORS.INFO};
+    padding: 10px;
+    border-radius: 5px;
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+
+`

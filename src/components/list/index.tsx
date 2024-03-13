@@ -6,7 +6,7 @@ import {
   StyleSheet,
   View,
 } from "react-native";
-import { api } from "../../apis/list/config";
+import { createApiInstance} from "../../apis/list/config";
 import { Separator } from "../listItem/styles";
 import { IRequests } from "../../apis/list/types";
 import { BottomSheetModal } from "@gorhom/bottom-sheet";
@@ -21,6 +21,7 @@ import { ScreenHeader } from "../screenHeader";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { countActiveItems } from "../../services/countActivate";
 import LoadMore from "../loadMore";
+import { useAuth } from "../../contexts/AuthContexts";
 
 type DataItem = {
   name: string;
@@ -35,6 +36,11 @@ const ROOT =
   "framework/v1/consultaSQLServer/RealizaConsulta/API.1.2/0/G?parameters=";
 const ROWS = 100;
 const USUARIO = "edson.junior";
+
+const { api, setAuthToken } = createApiInstance({
+  baseURL: process.env.EXPO_PUBLIC_BASE_URL,
+  timeout: 1000,
+});
 
 export function List() {
   const [data, setData] = useState<IRequests[]>([]);
@@ -51,6 +57,7 @@ export function List() {
 
 
   const bottomSheetRef = useRef<BottomSheetModal>(null);
+  const { authState } = useAuth();
 
   const handlePresentModalPress = async (title: string, field: string) => {
     setIdTitle(title);
@@ -213,11 +220,11 @@ export function List() {
   }, []);
 
   const loadApi = useCallback(async () => {
-    if (hasError) {
+    if (hasError && !authState?.access_token ) {
       return;
     }
-
     try {
+      setAuthToken(authState?.access_token);
       const response = await api.get(
         `${ROOT}PAGE=${page};ROWS=${ROWS};USUARIO=${USUARIO}`
       );
@@ -227,6 +234,7 @@ export function List() {
       if (error.code === "ECONNABORTED") {
         alert("A requisição demorou muito e foi interrompida");
       } else {
+        console.log('chegou aqui',error)
         alert(error);
       }
       setHasError(true);

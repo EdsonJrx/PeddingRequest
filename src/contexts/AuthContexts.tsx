@@ -3,7 +3,7 @@ import axios  from "axios";
 import * as SecureStore from "expo-secure-store";
 
 interface AuthProps {
-    authState?: {access_token: string | null; refresh_token: string | null; authenticated: boolean | null };
+    authState?: {access_token: string | null; refresh_token: string | null; authenticated: boolean | null, loading?: boolean; };
     onRegister?: (username: string, password: string) => Promise<any>;
     onLogin?: (username: string, password: string, servicealias: string) => Promise<any>;
     onLogout?: () => Promise<any>;
@@ -24,30 +24,30 @@ export const AuthProvider = ({ children }: any) => {
         access_token: string | null;
         refresh_token: string | null;
         username: string | null;
-        authenticated: boolean | null;
+        authenticated: boolean | null ;
+        loading?: boolean;
     }>({
         access_token: null,
         refresh_token: null,
         username: null,
         authenticated: null,
+        loading: true,
     });
 
     useEffect(() => {
+        setAuthState({ ...authState, loading: true });
         const loadToken = async () => {
-           const access_token = await SecureStore.getItemAsync(TOKEN_KEY); 
-           const refresh_token = await SecureStore.getItemAsync(REFRESH_KEY); 
-           const username = await SecureStore.getItemAsync(USER_KEY); 
-           console.log("access_token:", access_token);
-           console.log("refresh_token:", refresh_token);
-           console.log("username:", username);
-
-           if (access_token) {
+            const access_token = await SecureStore.getItemAsync(TOKEN_KEY); 
+            const refresh_token = await SecureStore.getItemAsync(REFRESH_KEY); 
+            const username = await SecureStore.getItemAsync(USER_KEY); 
+    
+            if (access_token) {
                 let config = {
                     method: 'get',
                     maxBodyLength: Infinity,
                     url: `${ API_URL}/framework/v1/users?username=${username}`,
                     headers: { 
-                    'Authorization': `Bearer ${access_token}`,
+                        'Authorization': `Bearer ${access_token}`,
                     }
                 };
                 const result = await axios(config);
@@ -57,6 +57,7 @@ export const AuthProvider = ({ children }: any) => {
                         refresh_token: refresh_token,
                         username: username,
                         authenticated: true,
+                        loading: false,
                     });
                 } else {
                     let data = JSON.stringify({
@@ -68,25 +69,28 @@ export const AuthProvider = ({ children }: any) => {
                         maxBodyLength: Infinity,
                         url: `${API_URL}/connect/token/`,
                         headers: { 
-                          'Accept': 'application/json', 
-                          'Content-Type': 'application/json'
+                            'Accept': 'application/json', 
+                            'Content-Type': 'application/json'
                         },
                         data : data
                     };
                     const result = await axios(config);
                     if (result.data.access_token) {
                         setAuthState({
-                            access_token: access_token,
+                            access_token: result.data.access_token, // Use the new access token
                             refresh_token: refresh_token,
                             username: username,
                             authenticated: true,
+                            loading: false,
                         });
                     }
                 }
             } 
         }
         loadToken();
+        
     }, []);
+    
     
     const register = async (username: string, password: string) => {
         try {
@@ -126,6 +130,7 @@ export const AuthProvider = ({ children }: any) => {
                 refresh_token:result.data.refresh_token,
                 username:username,
                 authenticated: true,
+                loading: false,
             });
 
             await SecureStore.setItemAsync(TOKEN_KEY, result.data.access_token);
@@ -152,6 +157,7 @@ export const AuthProvider = ({ children }: any) => {
             refresh_token: null,
             username:null,
             authenticated: false,
+            loading : false
         });
     };
     

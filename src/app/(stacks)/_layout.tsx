@@ -8,15 +8,14 @@ import { FlatListContext } from "../../contexts/flatlist";
 import { AuthProvider, useAuth } from '../../contexts/AuthContexts';
 
 export default function StackRoutesLayout(){
-    const {authState, onLogout } = useAuth();
-    console.log ("testeesseererer",authState?.authenticated)
     return (
         <AuthProvider>
             <ThemeProvider theme={light}>
                 <FlatListProvider>
                     <BottomSheetModalProvider>
-                        <Stack screenOptions={{
-                            headerShown: false,
+                        <Stack 
+                            screenOptions={{
+                            headerShown: false,                            
                         }}>
                             <Stack.Screen
                                 name="index"

@@ -6,7 +6,7 @@ export default function Inicio() {
   return (
     <S.Container>
       <S.Logo
-        source={require("../../assets/Logo.png")}
+        source={require("../assets/Logo.png")}
         resizeMode="contain"
       ></S.Logo>
       <S.Loding size={"large"}  />
